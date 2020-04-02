@@ -5,6 +5,7 @@ const SQUARE_COLOR = "#cc0000";
 const SQUARE_SPEED_X = 0;
 const SQUARE_SPEED_Y = 0;
 const OBSTACLE_SPEED = 2;
+const OBSTACLE_SPEEDX = 25;
 const OBSTACLE_COLOR = "#0360ff";
 const OBSTACLE_MIN_HEIGHT = 40;
 const OBSTACLE_MAX_HEIGHT = GAME_AREA_HEIGHT - 100;
@@ -19,16 +20,26 @@ const RIGHTARROW_KEYCODE = 39;
 const LEFTARROW_KEYCODE = 37;
 const UPARROW_KEYCODE = 38;
 const DOWNARROW_KEYCODE = 40;
+const GLOBAL_ACCELERATION = -0.05;
 
+let global_speed = 2;
 let obs;
 let random;
 let obstacle = new Image();
 obstacle.src     = "imgs/obstacle.png";
 
 let gap;
+
+function global_accelerate()
+{
+
+    global_speed += GLOBAL_ACCELERATION;
+}
+
 class SquaredForm {
 
-    constructor(x, y, width, height, color, imagen = null) {
+    constructor(x, y, width, height, color, speedY ,imagen = null) 
+    {
 
         this.x = x; // 0 
         this.y = y; // screen height
@@ -43,17 +54,16 @@ class SquaredForm {
     setSpeedX(speedX) {
         this.speedX = speedX;
     }
-
     setSpeedY(speedY) {
         this.speedY = speedY;
     }
-
-    render(ctx) {
+    render(ctx) 
+    {
 
     if(this.imagen == null)
     {
-    ctx.fillStyle = this.color;
-    ctx.fillRect(this.x, this.y, this.width, this.height);
+        ctx.fillStyle = this.color;
+        ctx.fillRect(this.x, this.y, this.width, this.height);
     }
     else
     {
@@ -61,7 +71,12 @@ class SquaredForm {
     }
     }
 
+    accelerate()
+    {
+        this.speedY = global_speed; 
+    }
     move() {
+
         this.x += this.speedX;
         this.y += this.speedY;
     }
@@ -128,7 +143,7 @@ class GameArea {
 
 let navesita = new Image();
 navesita.src     = "imgs/nave.png";
-let theSquare = new SquaredForm(GAME_AREA_WIDTH / 2, 100 , SQUARE_SIZE, SQUARE_SIZE, "#FF00CC", navesita);
+let theSquare = new SquaredForm(GAME_AREA_WIDTH / 2, 100 , SQUARE_SIZE, SQUARE_SIZE, "#FF00CC", 0 ,navesita);
 
 
 let rightArrowPressed = false,
@@ -149,14 +164,13 @@ function handlerOne(event)
         case RIGHTARROW_KEYCODE:
             if (!rightArrowPressed) {
                 rightArrowPressed = true;
-                gameArea.obstacles.forEach(element => { element.setSpeedX(4);});
-                //.setSpeedX(SQUARE_SPEED_X);
+                gameArea.obstacles.forEach(element => { element.setSpeedX(OBSTACLE_SPEEDX);});
             }
             break;
         case LEFTARROW_KEYCODE:
             if (!leftArrowPressed) {
                 leftArrowPressed = true;
-                gameArea.obstacles.forEach(element => { element.setSpeedX(-4);});
+                gameArea.obstacles.forEach(element => { element.setSpeedX(-OBSTACLE_SPEEDX);});
 
             }
             break;
@@ -225,7 +239,7 @@ function updateGame() {
     var velo = 5;
     let collision = false;
 
-
+    global_accelerate();
     for (let i = 0; i < gameArea.obstacles.length; i++) {
         if (theSquare.crashWith(gameArea.obstacles[i]))
         {
@@ -261,52 +275,44 @@ function updateGame() {
             
             let chance = Math.random();
             if (chance < PROBABILITY_OBSTACLE) {
-            for(var i = 0; i <= 7; i++)
+
+
+            var _random = Math.random();
+            if(_random > 0.75 )random = random+2;
+            else if(_random > 0.5) random++;
+            else if(_random >= 0.25) random--;
+            else if(_random < 0.25 ) random = random - 2;
+            
+            if(random < 0) random = 0;
+            if(random > 7) random = 7;
+            
+            for(var i = -10; i <= 17; i++)
             {
                 var color = "#ffaaa5";
-                if(random != i)
+                //INSTANTIATE THE OBSTACLES THAT ARENT THE RANDOM ONE
+                if(random != i) 
                 {
-                    let form = new SquaredForm( (OBSTACLE_WIDTH * i), gameArea.canvas.height, OBSTACLE_WIDTH , 25, color, obstacle);
+                    let form = new SquaredForm( (OBSTACLE_WIDTH * i), gameArea.canvas.height, OBSTACLE_WIDTH , 25, color, global_speed ,obstacle);
                     gameArea.addObstacle(form);
                     form.setSpeedY(-OBSTACLE_SPEED)
                 }
             }
-
-                //let niggu = new SquaredForm(gameArea.canvas.width , height + 5, OBSTACLE_WIDTH + 5, SQUARE_SIZE - 10, "#000000", patatita);
-               // niggu.patata = true;
-                //niggu.setSpeedX(-OBSTACLE_SPEED);
-
-                //niggu.setSpeedY(velo);
-
-                //gameArea.addObstacle(niggu);
-                // The obstacle at the bottom only is created if there is enough room
-                /*if ((height + gap + OBSTACLE_MIN_HEIGHT) <= gameArea.canvas.height) 
-                {
-                    form = new SquaredForm(gameArea.canvas.width, height + gap, OBSTACLE_WIDTH,
-                        gameArea.canvas.height - height - gap, OBSTACLE_COLOR);
-                    form.setSpeedX(-OBSTACLE_SPEED);
-                    gameArea.addObstacle(form);
-                }*/
             }
         }
 
-        //if(niggu.y < height + gap) velo = velo * -1;
-
-        // Move obstacles and delete the ones that goes outside the canvas
-        for (let i = gameArea.obstacles.length - 1; i >= 0; i--) {
+        // delete the ones that goes outside the canvas
+        for (let i = gameArea.obstacles.length - 1; i >= 0; i--) 
+        {
             gameArea.obstacles[i].move();
-            if (gameArea.obstacles[i].x + OBSTACLE_WIDTH <= 0) {
-                gameArea.removeObstacle(i);
+            gameArea.obstacles[i].accelerate();
+             if (gameArea.obstacles[i].y + OBSTACLE_WIDTH <= 0) {
+                 gameArea.removeObstacle(i);
             }
-            /*if(gameArea.obstacles[i].imagen != null && (gameArea.obstacles[i].y <= 0 || gameArea.obstacles[i].y >= (500 -25)))
-            {
-                gameArea.obstacles[i].speedY = gameArea.obstacles[i].speedY * -1;
-            }*/
         }
 
 
         // Move our hero
-        theSquare.move();
+        // theSquare.move();
         // Our hero can't go outside the canvas
         theSquare.setIntoArea(gameArea.canvas.width, gameArea.canvas.height);
         gameArea.clear();
@@ -333,6 +339,7 @@ function endGame() {
 
 function punish()
 {
+    global_speed = 2;
     seconds = seconds - 15;
     gameArea.removeObstacle(obs);
     Currentlifes =  Currentlifes - 1;
