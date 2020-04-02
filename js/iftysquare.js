@@ -13,6 +13,7 @@ const OBSTACLE_WIDTH = 100;
 const OBSTACLE_MIN_GAP = 55;
 const OBSTACLE_MAX_GAP = GAME_AREA_HEIGHT - 100;
 const PROBABILITY_OBSTACLE = 0.7;
+const PROBABILITY_ACCELERATE = 0.7;
 const FRAME_OBSTACLE = 85;
 const FPS = 30;
 const CHRONO_MSG = "RANDOM: ";
@@ -32,8 +33,8 @@ let gap;
 
 function global_accelerate()
 {
-
-    global_speed += GLOBAL_ACCELERATION;
+    let chance = Math.random();
+    if (chance < PROBABILITY_ACCELERATE) global_speed += GLOBAL_ACCELERATION;
 }
 
 class SquaredForm {
