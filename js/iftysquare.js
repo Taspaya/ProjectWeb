@@ -1,11 +1,11 @@
-const GAME_AREA_WIDTH = 800;
-const GAME_AREA_HEIGHT = 500;
+const GAME_AREA_WIDTH = 400;
+const GAME_AREA_HEIGHT = 800;
 const SQUARE_SIZE = 40;
 const SQUARE_COLOR = "#cc0000";
 const SQUARE_SPEED_X = 0;
 const SQUARE_SPEED_Y = 0;
 const OBSTACLE_SPEED = 2;
-const OBSTACLE_SPEEDX = 25;
+const OBSTACLE_SPEEDX = 15;
 const OBSTACLE_COLOR = "#0360ff";
 const OBSTACLE_MIN_HEIGHT = 40;
 const OBSTACLE_MAX_HEIGHT = GAME_AREA_HEIGHT - 100;
@@ -30,6 +30,7 @@ let obstacle = new Image();
 obstacle.src     = "imgs/obstacle.png";
 
 let gap;
+let gaps = [2 , 1 , 3 , 0 , 0 , 0 , 1 ,2 , 1 ];
 
 function global_accelerate()
 {
@@ -42,10 +43,10 @@ class SquaredForm {
     constructor(x, y, width, height, color, speedY ,imagen = null) 
     {
 
-        this.x = x; // 0 
-        this.y = y; // screen height
-        this.width = width; //screen width
-        this.height = height; // 50
+        this.x = x; 
+        this.y = y;
+        this.width = width; 
+        this.height = height; 
         this.color = color;
         this.speedX = 0;
         this.speedY = 0;
@@ -116,7 +117,8 @@ class GameArea {
         this.frameNumber = undefined;
     }
 
-    initialise() {
+    initialise() 
+    {
         this.canvas.width = GAME_AREA_WIDTH;
         this.canvas.height = GAME_AREA_HEIGHT;
         this.context = this.canvas.getContext("2d");
@@ -125,6 +127,7 @@ class GameArea {
         this.interval = setInterval(updateGame, 1000 / FPS);
         this.frameNumber = 0;
     }
+
     render() {
         for (const obstacle of this.obstacles) {
             obstacle.render(this.context);
@@ -134,11 +137,61 @@ class GameArea {
     clear() {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
+
     addObstacle(obstacle) {
         this.obstacles.push(obstacle);
     }
+
     removeObstacle(i) {
         this.obstacles.splice(i, 1);
+    }
+
+    setupLevel(o)
+    {
+        let index = 0;
+        switch(o)
+        {
+            case 0:
+            
+            
+            for(var j = 301; j <= 3200; j++)
+            {
+
+                if(j == 3200)
+                {
+                    for(var i = -4; i <= 7; i++) 
+                    {
+                        if(i != gaps[index])
+                        {
+                            var color = "#4cd3c2";
+                            let form = new SquaredForm( (OBSTACLE_WIDTH * i), j, OBSTACLE_WIDTH , 25, color, global_speed);
+                            gameArea.addObstacle(form);
+                            form.setSpeedY(-OBSTACLE_SPEED)
+                        }
+                    }
+                }
+                else if(j % 300 == 0)
+                {
+                    console.log("STRUCTURE: " + index);
+                    // THIS FOR GENERATES THE STRUCTURE
+                    for(var i = -4; i <= 7; i++) 
+                    {
+                        if(i != gaps[index])
+                        {
+                            var color = "#4cd3c2";
+                            let form = new SquaredForm( (OBSTACLE_WIDTH * i), j, OBSTACLE_WIDTH , 25, color, global_speed ,obstacle);
+                            gameArea.addObstacle(form);
+                            form.setSpeedY(-OBSTACLE_SPEED)
+                        }
+                    }
+                    index++;
+                }
+
+            }
+                break;
+            default:
+                break;
+        }
     }
 }
 
@@ -217,7 +270,9 @@ function handlerTwo(event) {
 }
 
 function startGame() {
+
     gameArea.initialise();
+    gameArea.setupLevel(0);
     gameArea.render();
 
     window.document.addEventListener("keydown", handlerOne);
@@ -229,9 +284,6 @@ function startGame() {
     lifes = document.getElementById("lives");
     Currentlifes = 3;
     lifes.innerHTML = Currentlifes;
-    random = Math.random() * 10;
-    random = Math.trunc(random) - 2;
-    random = Math.abs(random);
 }
 
 function updateGame() {
@@ -263,50 +315,20 @@ function updateGame() {
     }
     else {
 
-        random = Math.random() * 10;
-        random = Math.trunc(random) - 2;
-        random = Math.abs(random);
         // Increase count of frames
         gameArea.frameNumber += 1;
         // Let's see if new obstacles must be created
-        if (gameArea.frameNumber >= FRAME_OBSTACLE)
-            gameArea.frameNumber = 1;
         // First: check if the given number of frames has passed
-        if (gameArea.frameNumber == 1) {
-            
-            let chance = Math.random();
-            if (chance < PROBABILITY_OBSTACLE) {
 
-
-            var _random = Math.random();
-            if(_random > 0.75 )random = random+2;
-            else if(_random > 0.5) random++;
-            else if(_random >= 0.25) random--;
-            else if(_random < 0.25 ) random = random - 2;
-            
-            if(random < 0) random = 0;
-            if(random > 7) random = 7;
-            
-            for(var i = -10; i <= 17; i++)
-            {
-                var color = "#ffaaa5";
-                //INSTANTIATE THE OBSTACLES THAT ARENT THE RANDOM ONE
-                if(random != i) 
-                {
-                    let form = new SquaredForm( (OBSTACLE_WIDTH * i), gameArea.canvas.height, OBSTACLE_WIDTH , 25, color, global_speed ,obstacle);
-                    gameArea.addObstacle(form);
-                    form.setSpeedY(-OBSTACLE_SPEED)
-                }
-            }
-            }
-        }
-
-        // delete the ones that goes outside the canvas
+    
+    
+            // delete the ones that goes outside the canvas
         for (let i = gameArea.obstacles.length - 1; i >= 0; i--) 
         {
             gameArea.obstacles[i].move();
             gameArea.obstacles[i].accelerate();
-             if (gameArea.obstacles[i].y + OBSTACLE_WIDTH <= 0) {
+             if (gameArea.obstacles[i].y + OBSTACLE_WIDTH <= 0) 
+             {
                  gameArea.removeObstacle(i);
             }
         }
@@ -322,7 +344,9 @@ function updateGame() {
 }
 
 function updateChrono() {
-    if (continueGame) {
+
+    if (continueGame) 
+    {
         seconds++;
         let minutes = Math.floor(seconds / 60);
         let secondsToShow = seconds % 60;
