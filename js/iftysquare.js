@@ -49,7 +49,7 @@ class SquaredForm {
         this.height = height; 
         this.color = color;
         this.speedX = 0;
-        this.speedY = 0;
+        this.speedY = speedY;
         this.imagen = imagen;
     }
 
@@ -186,7 +186,6 @@ class GameArea {
                     }
                     index++;
                 }
-
             }
                 break;
             default:
@@ -293,7 +292,8 @@ function updateGame() {
     let collision = false;
 
     global_accelerate();
-    for (let i = 0; i < gameArea.obstacles.length; i++) {
+    for (let i = 0; i < gameArea.obstacles.length; i++) 
+    {
         if (theSquare.crashWith(gameArea.obstacles[i]))
         {
             collision = true;
@@ -315,14 +315,7 @@ function updateGame() {
     }
     else {
 
-        // Increase count of frames
         gameArea.frameNumber += 1;
-        // Let's see if new obstacles must be created
-        // First: check if the given number of frames has passed
-
-    
-    
-            // delete the ones that goes outside the canvas
         for (let i = gameArea.obstacles.length - 1; i >= 0; i--) 
         {
             gameArea.obstacles[i].move();
@@ -332,11 +325,6 @@ function updateGame() {
                  gameArea.removeObstacle(i);
             }
         }
-
-
-        // Move our hero
-        // theSquare.move();
-        // Our hero can't go outside the canvas
         theSquare.setIntoArea(gameArea.canvas.width, gameArea.canvas.height);
         gameArea.clear();
         gameArea.render();
@@ -362,18 +350,21 @@ function endGame() {
     window.document.removeEventListener("keyup", handlerTwo);
 }
 
-function punish()
+function punish(_i)
 {
     global_speed = 2;
-    seconds = seconds - 15;
+
+    for (let i = gameArea.obstacles.length - 1; i >= 0; i--) 
+    {
+        gameArea.obstacles[i].y = gameArea.obstacles[i].y + 5;
+        gameArea.obstacles[i].speedY = 20;
+    }
+    
+
     gameArea.removeObstacle(obs);
+
     Currentlifes =  Currentlifes - 1;
     lifes.innerHTML = Currentlifes;
-
-    setTimeout(restartGame(), 1000);
-
-    if(seconds < 0) seconds = 0;
-    if(Currentlifes < 0) endGame();
 }
 
 
