@@ -40,7 +40,7 @@ function global_accelerate()
 
 class SquaredForm {
 
-    constructor(x, y, width, height, color, speedY ,imagen = null) 
+    constructor(x, y, width, height, color, speedY ,imagen = null, trap = false) 
     {
 
         this.x = x; 
@@ -51,6 +51,7 @@ class SquaredForm {
         this.speedX = 0;
         this.speedY = speedY;
         this.imagen = imagen;
+        this.trap = trap;
     }
 
     setSpeedX(speedX) {
@@ -206,7 +207,7 @@ let rightArrowPressed = false,
 
 let seconds, timeout, theChrono, lifes;
 let continueGame = true;
-let Currentlifes = 3;
+let Currentlifes = 3;   
 let gameArea = new GameArea(document.createElement("canvas"), theSquare, []);
 
 window.onload = startGame;
@@ -306,6 +307,8 @@ function updateGame() {
     {
         if(gameArea.obstacles[obs].imagen != null)
         {
+            rebound();
+            if(gameArea.obstacles[obs].trap == true)
             punish();
         }
         else
@@ -350,18 +353,24 @@ function endGame() {
     window.document.removeEventListener("keyup", handlerTwo);
 }
 
-function punish(_i)
+function rebound()
 {
+
     global_speed = 2;
 
     for (let i = gameArea.obstacles.length - 1; i >= 0; i--) 
     {
-        gameArea.obstacles[i].y = gameArea.obstacles[i].y + 5;
+        gameArea.obstacles[i].y = gameArea.obstacles[i].y + 1;
         gameArea.obstacles[i].speedY = 20;
     }
-    
-
     gameArea.removeObstacle(obs);
+
+
+}
+
+function punish(_i)
+{
+ 
 
     Currentlifes =  Currentlifes - 1;
     lifes.innerHTML = Currentlifes;
