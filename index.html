@@ -5,26 +5,59 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Infinity Square</title>
-    <link rel="stylesheet" href="css/iftysquare.css">
+    <title>Falling Pilotes!</title>
+    <link rel="stylesheet" href="css/platformGame.css">
 </head>
 
 <body>
-    <header>
-        Drive the square to avoid obstacles!
-    </header>
-    <header>
-        Lives:
-    </header>
-    <header id = lives>
-        3
-    </header>
-    <p id="chrono"></p>
-    <div id="gameplay"></div>
-    <footer>
-        Use the arrow keys to drive the square
-    </footer>
-    <script src="js/iftysquare.js"></script>
+    <div id="initialScreen">
+        <div style="margin-bottom: 2em;">
+            <p style="text-align:center; font-size: 35pt;">Falling pilotes</p>
+        </div>
+        <img src="assets/imgs/albondiga.png" id="albondiga" align="right"  width="10%" height="10%" alt="albondiga" >
+        <div></div>
+        <div><button class="button" onclick="moveToAboutScreen()">About screen</button></div>
+        <div><button class="button" onclick="moveToInstructionsScreen()">Instructions screen</button></div>
+        <div><button class="button" onclick="moveToPlayerScreen()">Player screen</button></div>
+            <input id="button2" type="button" value=" Play " onclick="startGame()"/> 
+
+    </div>
+
+    <div id="aboutScreen">
+        <p style="font-size: 35pt;">Falling pilotes</p>
+        <div><p style=" font-size: 15pt;">Que en són de bones!</p></div>
+        <div><p style=" font-size: 6pt;">M'encanten</p></div>
+        <div><p style="font-size: 10pt; color: gray;">Alba Ramos, Gerard Ardit</p></div>
+
+        <div><button class="button" onclick="awake()">Back</button></div>
+    </div>
+
+    <div id="instructionsScreen">
+        <div><p style=" font-size: 15pt;">instructions to play the game</p></div>
+        <div><button class="button" onclick="awake()">Back</button></div>
+    </div> 
+
+    <div id="playerScreen">
+        <div><p style=" font-size: 15pt;">Choose your favorite name!</p></div>
+        <div><p style=" font-size: 14pt;">(Or write your own nick~)</p></div>
+        <div><button class="button" onclick="elegirNombre(1, 'Robot')">Pirata</button></div>
+        <div><button class="button" onclick="elegirNombre(1, 'Araña Peluda')">Araña</button></div>
+        <div><button class="button" onclick="elegirNombre(1, 'Mortadela')">Mortadela</button></div>
+        <div><button class="button" onclick="elegirNombre(0, ' ')">Elige tu propio nombre</button></div>
+            <input id="button" type="button" value=" Back " onclick="awake()"/>
+    </div>
+
+    <div id="platformGameStage"></div>
+    
+    <!--      FALTA END SCREEN   -->
+
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/webfont/1.6.28/webfontloader.js'></script>
+    <script src="js/lib/phaser.js"></script>
+    <script src="js/welcome.js"></script>
+    <script src="js/about.js"></script>
+    <script src="js/configure.js"></script>
+    <script src="js/play.js"></script>
+    <script src="js/main.js"></script>
 </body>
 
 </html>
