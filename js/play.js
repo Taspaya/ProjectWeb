@@ -36,6 +36,10 @@ const DOWNARROW_KEYCODE = 40;
 
 //#region GLOBALS
 
+let ball;
+let rightBTN;
+let leftBTN;
+
 let global_speed = 2;
 let obs;
 let random;
@@ -125,7 +129,7 @@ function handlerTwo(event) {
 //#endregion
 
 
-
+//#region old version
 function startGame() {
 
     gameArea.initialise();
@@ -231,10 +235,6 @@ function restartGame()
     theSquare.y = 100;
     theSquare.x = gameArea.canvas.width / 2;
 }
-
-
-
-
 
 
 function global_accelerate()
@@ -404,123 +404,42 @@ class GameArea {
 let theSquare = new SquaredForm(GAME_AREA_WIDTH / 2, 100 , SQUARE_SIZE, SQUARE_SIZE, "#FF00CC", 0 ,navesita);
 let gameArea = new GameArea(document.createElement("canvas"), theSquare, []);
 let levelsData = ['assets/levels/level01.json', 'assets/levels/level02.json'];
+//#endregion
 
 let playState = {
     preload: loadPlayAssets,
-    create: gameArea.setupLevel(0),
+    create: createPlay,
     update: updateLevel
 };
 
+function createPlay()
+{
 
-function loadPlayAssets() {
-    loadSprites();
-    loadImages();
-    loadSounds();
-    loadLevel(levelToPlay);
+    createKeyControls();
+    createBall();
+}
+function loadPlayAssets() 
+{
+    //loadLevel(levelToPlay);
 }
 
-function loadSprites() {
-    //game.load.spritesheet('collector', 'assets/imgs/dude.png', 32, 48);
-    //game.load.spritesheet('enemy', 'assets/imgs/enemySprite.png', 55, 53, 15);
+function updateLevel(){}
+function createKeyControls()
+{
+    rightBTN = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
+    leftBTN = game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
 }
-
-function loadImages() {
-    //game.load.image('bgGame', 'assets/imgs/bgPlay.jpg');
-    //game.load.image('exit', 'assets/imgs/exit.png');
-    //game.load.image('ground', 'assets/imgs/platform.png');
-    //game.load.image('star', 'assets/imgs/star.png');
-    //game.load.image('aid', 'assets/imgs/firstaid.png');
-    //game.load.image('healthHolder', 'assets/imgs/health_holder.png');
-    //game.load.image('healthBar', 'assets/imgs/health_bar.png');
-    //game.load.image('heart', 'assets/imgs/heart.png');
-}
-
-function loadSounds() {
-    //game.load.audio('damaged', 'assets/snds/hurt1.wav');
-    //game.load.audio('collectstar', 'assets/snds/cling.wav');
-    //game.load.audio('getaid', 'assets/snds/wooo.wav');
-    //game.load.audio('hitenemy', 'assets/snds/snare.wav');
-    //game.load.audio('outoftime', 'assets/snds/klaxon4-dry.wav');
-    //game.load.audio('levelpassed', 'assets/snds/success.wav');
-}
-
-function loadLevel(level) {
-    //game.load.text('level', levelsData[level - 1], true);
-}
-
-
-
-function createSounds() {
-    //soundDamaged = game.add.audio('damaged');
-    //soundCollectStar = game.add.audio('collectstar');
-    //soundGetAid = game.add.audio('getaid');
-    //soundHitEnemy = game.add.audio('hitenemy');
-    //soundOutOfTime = game.add.audio('outoftime');
-    //soundLevelPassed = game.add.audio('levelpassed');
-}
-
-function createAids() {
-    //firstAids = game.add.group();
-    //firstAids.enableBody = true;
-    //firstAids.createMultiple(MAX_AIDS, 'aid');
-    //firstAids.forEach(setupItem, this);
-}
-
-function createStars() {
-    // similar to the code above
-}
-
-function createPlatform(element) {
-    // similar to the code of createGround
-}
-
-function setupAid(aid, floorY) {
-    let item = firstAids.getFirstExists(false);
-    if (item)
-        item.reset(aid.x, floorY - AID_STAR_Y_OFFSET);
-}
-
-function setupStar(star, floorY) {
-    let item = stars.getFirstExists(false);
-    if (item) {
-        item.reset(star.x, floorY - AID_STAR_Y_OFFSET);
-        totalNumOfStars += 1;
-    }
-}
-
-function createHUD() {
-    //hudGroup = game.add.group();
-    //hudGroup.create(5, 5, 'heart');
-    //hudGroup.create(50, 5, 'healthHolder');
-    //healthBar = hudGroup.create(50, 5, 'healthBar');
-    //hudTime = game.add.text(295, 5, setRemainingTime(remainingTime), {
-    //    font: 'bold 14pt Sniglet',
-    //    fill: '#b60404'
-    //});
-    //hudGroup.add(hudTime);
-    //hudGroup.fixedToCamera = true;
-    //healthValue = MAX_HEALTH;
-}
-
-function updateLevel() {
+function createBall()
+{
+    let x = game.world.centerX;
+    let y = game.world.height * 0.2;
+    ball = game.add.sprite(x,y, 'ball');
+    //ball.anchor.setTo(0.05, 0.05);
+    game.physics.arcade.enable(ball);
+    //ball.body.collideWorldBounds = true;
 
 }
 
-function endGame() {
-    clearLevel();
-    goToWelcome();
-}
-
-function nextLevel() {
-    clearLevel();
-    levelToPlay += 1;
-    if (levelToPlay > levelsData.length)
-        goToWelcome();
-    else {
-        game.input.enabled = true;
-        game.state.start('play');
-    }
-}
 
 function goToWelcome() {
     game.world.setBounds(0, 0, game.width, game.height);

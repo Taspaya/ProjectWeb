@@ -33,7 +33,6 @@ let initialState =
 };
 
 
-
 let mainTween, downTween1, downTween2;
 let btnAbout, btnConfig, btnPlay;
 let levelToPlay;

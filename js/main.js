@@ -10,16 +10,12 @@ function startGame()
 
     game = new Phaser.Game(GAME_AREA_WIDTH, GAME_AREA_HEIGHT, Phaser.CANVAS, 'platformGameStage');
 
-    // Welcome Screen
-    //game.state.add('welcome', initialState);
-    // About Screen
-    //game.state.add('about', aboutState);
-    // Config Screen
-    //game.state.add('config', configState);
+
     // Play Screen
+    game.state.add('configure', configState);
     game.state.add('play', playState);
 
-    game.state.start('play');
+    game.state.start('configure');
 
     // Add the instruction required to start the 'welcome' state
 }
