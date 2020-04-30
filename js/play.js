@@ -423,8 +423,12 @@ function createPlay()
     obstaclesGroup.enableBody = true;
     createKeyControls();
     createBall();
-    manageGravity();
-    game.time.events.loop(Phaser.Timer.SECOND, updateCounter, this);
+    let distance = game.height;
+    for(let i = 0; i < gaps.length ; i++)
+    {
+        createobstaclesGroup(distance,gaps[i]);
+        distance = distance + 250
+    }    //game.time.events.loop(Phaser.Timer.SECOND, updateCounter, this);
 }
 
 function updatePlay()
@@ -434,6 +438,15 @@ function updatePlay()
 
 }
 
+function createLevel()
+{
+    let distance = game.height;
+    for(let i = 0; i < gaps.length ; i++)
+    {
+        createobstaclesGroup(distance,gaps[i]);
+        distance = distance + 50
+    }
+}
 function manageGravity()
 {
 
@@ -445,15 +458,6 @@ function manageGravity()
     }
 }
 
-function updateCounter() {
-
-    counter++;
-    if (counter > 1) {
-        counter = 0;
-        createobstaclesGroup(2)
-    }
-
-}
 
 
 function createKeyControls()
@@ -478,12 +482,12 @@ function createBall()
 }
 
 
-function createobstaclesGroup(gap)
+function createobstaclesGroup(distance,gap)
 {
     for(let i = 0,  j = 0; j < 8; i = i + 50, j++)
     {
         if(j != gap)
-        createObstacle(i, game.height);
+        createObstacle(i, game.height + distance);
     }
 
 }
