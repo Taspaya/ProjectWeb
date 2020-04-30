@@ -52,7 +52,7 @@ let obstaclesGroup;
 //obstacle.src     = "assets/imgs/obstacle.png";
 
 let gap;
-let gaps = [2 , 1 , 3 , 0 , 0 , 0 , 1 ,2 , 1 ];
+let gaps = [2 , 1 , 3 , 0 , 0 , 0 , 1 , 2 , 1 ];
 
 
 let navesita = new Image();
@@ -66,6 +66,8 @@ let rightArrowPressed = false,
 let seconds, timeout, theChrono, lifes;
 let continueGame = true;
 let Currentlifes = 3;   
+let counter = 0;
+
 
 //#endregion
 
@@ -422,6 +424,7 @@ function createPlay()
     createKeyControls();
     createBall();
     manageGravity();
+    game.time.events.loop(Phaser.Timer.SECOND, updateCounter, this);
 }
 
 function updatePlay()
@@ -439,16 +442,26 @@ function manageGravity()
         game.physics.arcade.enable(obstaclesGroup.children[i]);
         obstaclesGroup.children[i].body.velocity.y = obstaclesGroup.children[i].body.velocity.y -
         1;
+    }
+}
 
+function updateCounter() {
+
+    counter++;
+    if (counter > 1) {
+        counter = 0;
+        createobstaclesGroup(2)
     }
 
 }
+
 
 function createKeyControls()
 {
     rightBTN = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
     leftBTN = game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
 }
+
 function createBall()
 {
     let x = game.world.centerX - 20;
@@ -457,12 +470,13 @@ function createBall()
     ball.width =40;
     ball.height = 40;
     //ball.anchor.setTo(0.05, 0.05);
-    game.physics.arcade.enable(ball);
+    game.physics.arcade.enable(ball); 
 
     //ball.body.collideWorldBounds = true;
-    createobstaclesGroup(2);
+    //createobstaclesGroup(4);
 
 }
+
 
 function createobstaclesGroup(gap)
 {
@@ -477,12 +491,11 @@ function rebound(ball, _obstacle)
 {
     if(_obstacle.key = "slab")
     {
-    for(let i = 0; i < obstaclesGroup.children.length; i++)
-    {
-        game.physics.arcade.enable(obstaclesGroup.children[i]);
-        obstaclesGroup.children[i].body.velocity.y = OBSTACLE_SPEED;
-
-    }
+        for(let i = 0; i < obstaclesGroup.children.length; i++)
+        {
+            game.physics.arcade.enable(obstaclesGroup.children[i]);
+            obstaclesGroup.children[i].body.velocity.y = OBSTACLE_SPEED;
+        }
     }
 }
 
@@ -499,10 +512,7 @@ function createObstacle(x,y)
 
 function createLevel()
 {
-
-
-
-
+   
 }
 
 

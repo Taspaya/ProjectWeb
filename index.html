@@ -1,5 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+    <style>
+        body {
+          background-image: url('https://images.wallpapersden.com/image/download/town-8-bit_64748_1600x900.jpg');
+          background-repeat: no-repeat;
+          background-attachment: fixed;  
+          background-size: cover;
+        }
+        </style>
 
 <head>
     <meta charset="UTF-8">
@@ -11,10 +19,11 @@
 
 <body>
     <div id="initialScreen">
-        <div style="margin-bottom: 2em;">
-            <p style="text-align:center; font-size: 35pt;">Falling pilotes</p>
+        <div><img src="assets/imgs/albondiga.png" id="albondiga" align="right"   width="10%" height="10%" alt="albondiga" ></div>
+        <div>
+            <p style="text-align:center; font-size: 60pt;">Falling pilotes</p>
         </div>
-        <img src="assets/imgs/albondiga.png" id="albondiga" align="right"  width="10%" height="10%" alt="albondiga" >
+        
         <div></div>
         <div><button class="button" onclick="moveToAboutScreen()">About screen</button></div>
         <div><button class="button" onclick="moveToInstructionsScreen()">Instructions screen</button></div>

@@ -1,3 +1,7 @@
+
+@import url('https://fonts.googleapis.com/css?family=Amatic+SC&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Crete+Round&display=swap');
+
 canvas {
     border: #5f95e8 6px solid;
     margin: auto;
@@ -15,6 +19,7 @@ canvas {
     font-size: 16px;
     margin: 4px 2px;
     cursor: pointer;
+    font-family: 'Crete Round', serif;
 }
 
 #button{
@@ -29,6 +34,7 @@ canvas {
     margin: 4px 2px;
     cursor: not-allowed;
     opacity: 0.6;
+    font-family: 'Crete Round', serif;
 }
 
 #button2{
@@ -43,12 +49,14 @@ canvas {
     margin: 4px 2px;
     cursor: not-allowed;
     opacity: 0.6;
+    font-family: 'Crete Round', serif;
 }
 
 #initialScreen {
     margin-top: 3em;
     margin-left: auto;
     margin-right: auto;
+    font-family: 'Amatic SC';
     width: 80%;
 }
 
@@ -69,10 +77,16 @@ canvas {
     width: 100%;
     text-align: center;
 }
-/*
-.nombreJugador {
-    text-align: center;
-    font-size: 16px;
+
+#albondiga{
+    animation-duration: 4s;
+    position: relative;
+    animation-iteration-count: infinite;
+    animation-name: pilota;
 }
 
-*/
+@keyframes pilota {
+    0%   {top:0px;}
+    50%  {top:350px;}
+    100% {top:0px;}
+  }
