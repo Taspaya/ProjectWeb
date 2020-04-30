@@ -421,15 +421,28 @@ function createPlay()
     obstaclesGroup.enableBody = true;
     createKeyControls();
     createBall();
+    manageGravity();
 }
 
 function updatePlay()
 {
     game.physics.arcade.overlap(obstaclesGroup,ball, rebound, null, this);
-
+    manageGravity();
 
 }
 
+function manageGravity()
+{
+
+    for(let i = 0; i < obstaclesGroup.children.length; i++)
+    {
+        game.physics.arcade.enable(obstaclesGroup.children[i]);
+        obstaclesGroup.children[i].body.velocity.y = obstaclesGroup.children[i].body.velocity.y -
+        1;
+
+    }
+
+}
 
 function createKeyControls()
 {
