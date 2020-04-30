@@ -22,10 +22,13 @@ playerScreen.style.display = "none";
 
 let button2 = document.getElementById("button2");
 
-button.disabled = true;
-button2.disabled = true;
+let albondiga = document.getElementById("albondiga");
 
-let nombreJugador = ' ';
+
+button.disabled = true;
+//button2.disabled = true;
+
+let nombreJugador = null;
 
 let initialState = 
 {
@@ -88,7 +91,7 @@ function elegirNombre(numero, nombreElegido){
     }
 
 
-    if (nombreJugador != ' ') { 
+    if (nombreJugador != null) { 
         button.disabled = false;
         var botonDesactivado = document.getElementById("button");
         botonDesactivado.style.opacity = 1;
