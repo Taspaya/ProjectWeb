@@ -14,7 +14,7 @@ const SQUARE_SPEED_Y = 0;       // BALL_SPEEDY
 
 // OBSTACLES
 
-const OBSTACLE_SPEED = 2;
+const OBSTACLE_SPEED = 120;
 const OBSTACLE_SPEEDX = 15;
 const OBSTACLE_COLOR = "#0360ff";
 const OBSTACLE_WIDTH = 100;
@@ -44,11 +44,16 @@ let global_speed = 2;
 let obs;
 let random;
 
-let obstacle = new Image();
-obstacle.src     = "assets/imgs/obstacle.png";
+let obstaclesGroup;
+
+//let obstacles;
+
+//let obstacle = new Image();
+//obstacle.src     = "assets/imgs/obstacle.png";
 
 let gap;
 let gaps = [2 , 1 , 3 , 0 , 0 , 0 , 1 ,2 , 1 ];
+
 
 let navesita = new Image();
 navesita.src     = "assets/imgs/nave.png";
@@ -314,6 +319,7 @@ class SquaredForm {
 }
 
 class GameArea {
+
     constructor(canvas, hero, obstacles) {
         this.canvas = canvas;
         this.hero = hero;
@@ -358,8 +364,6 @@ class GameArea {
         switch(o)
         {
             case 0:
-            
-            
             for(var j = 301; j <= 3200; j++)
             {
 
@@ -407,23 +411,26 @@ let levelsData = ['assets/levels/level01.json', 'assets/levels/level02.json'];
 //#endregion
 
 let playState = {
-    preload: loadPlayAssets,
     create: createPlay,
-    update: updateLevel
+    update: updatePlay
 };
 
 function createPlay()
 {
-
+    obstaclesGroup = game.add.group();
+    obstaclesGroup.enableBody = true;
     createKeyControls();
     createBall();
 }
-function loadPlayAssets() 
+
+function updatePlay()
 {
-    //loadLevel(levelToPlay);
+    game.physics.arcade.overlap(obstaclesGroup,ball, rebound, null, this);
+
+
 }
 
-function updateLevel(){}
+
 function createKeyControls()
 {
     rightBTN = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
@@ -431,12 +438,57 @@ function createKeyControls()
 }
 function createBall()
 {
-    let x = game.world.centerX;
-    let y = game.world.height * 0.2;
+    let x = game.world.centerX - 20;
+    let y = game.world.centerY * 0.1  ;
     ball = game.add.sprite(x,y, 'ball');
+    ball.width =40;
+    ball.height = 40;
     //ball.anchor.setTo(0.05, 0.05);
     game.physics.arcade.enable(ball);
+
     //ball.body.collideWorldBounds = true;
+    createobstaclesGroup(2);
+
+}
+
+function createobstaclesGroup(gap)
+{
+    for(let i = 0,  j = 0; j < 8; i = i + 50, j++)
+    {
+        if(j != gap)
+        createObstacle(i, game.height);
+    }
+
+}
+function rebound(ball, _obstacle)
+{
+    if(_obstacle.key = "slab")
+    {
+    for(let i = 0; i < obstaclesGroup.children.length; i++)
+    {
+        game.physics.arcade.enable(obstaclesGroup.children[i]);
+        obstaclesGroup.children[i].body.velocity.y = OBSTACLE_SPEED;
+
+    }
+    }
+}
+
+function createObstacle(x,y)
+{
+    obstacle = game.add.sprite(x,y, 'slab');
+    game.physics.arcade.enable(obstacle);
+    obstacle.width = 50;
+    obstacle.body.velocity.y = -OBSTACLE_SPEED;
+    obstaclesGroup.add(obstacle);
+
+}
+
+
+function createLevel()
+{
+
+
+
 
 }
 

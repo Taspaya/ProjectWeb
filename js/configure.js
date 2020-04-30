@@ -5,7 +5,7 @@ let configState = {
 
 function preloadImages()
 {
-    game.load.image('ball', 'assets/imgs/nave.png');
+    game.load.image('ball', 'assets/imgs/albondiga.png');
     game.load.image('slab', 'assets/imgs/obstacle.png');
 }
 
