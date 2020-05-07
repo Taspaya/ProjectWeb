@@ -90,3 +90,23 @@ canvas {
     50%  {top:350px;}
     100% {top:0px;}
   }
+
+
+  #rosquilla{
+    animation-duration: 4s;
+    bottom: 350px;
+    position: relative;
+    animation-iteration-count: infinite;
+    animation-name: rosco;
+
+}
+
+@keyframes rosco {
+    0%   {top:350px;
+        transform: scale3d(1, 1, 1);}
+    20%  {top:250px;}
+    30%  {top:350px;}
+    50%  {top:0px;
+        transform: scale3d(1.2, 1.2, 1.2);}
+    100% {top:350px;}
+  }

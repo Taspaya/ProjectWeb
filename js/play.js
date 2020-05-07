@@ -36,9 +36,13 @@ const DOWNARROW_KEYCODE = 40;
 
 //#region GLOBALS
 
+let juega = true;
+
 let ball;
 let rightBTN;
 let leftBTN;
+
+let cursors;
 
 let global_speed = 2;
 let obs;
@@ -52,7 +56,7 @@ let obstaclesGroup;
 //obstacle.src     = "assets/imgs/obstacle.png";
 
 let gap;
-let gaps = [2 , 1 , 3 , 0 , 0 , 0 , 1 , 2 , 1 ];
+let gaps = [-2 , 1 , 3 , 0 , 0 , 0 , 1 , 2 , 1 ];
 
 
 let navesita = new Image();
@@ -154,6 +158,8 @@ function startGame() {
 
 function updateGame() {
 
+
+
     var velo = 5;
     let collision = false;
 
@@ -226,8 +232,6 @@ function rebound()
 
 function punish(_i)
 {
- 
-
     Currentlifes =  Currentlifes - 1;
     lifes.innerHTML = Currentlifes;
 }
@@ -242,7 +246,6 @@ function restartGame()
     theSquare.y = 100;
     theSquare.x = gameArea.canvas.width / 2;
 }
-
 
 function global_accelerate()
 {
@@ -419,6 +422,11 @@ let playState = {
 
 function createPlay()
 {
+    leftBTN = game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
+    rightBTN = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
+
+    game.input.enabled = true;
+
     obstaclesGroup = game.add.group();
     obstaclesGroup.enableBody = true;
     createKeyControls();
@@ -428,7 +436,9 @@ function createPlay()
     {
         createobstaclesGroup(distance,gaps[i]);
         distance = distance + 250
-    }    //game.time.events.loop(Phaser.Timer.SECOND, updateCounter, this);
+    }    
+
+    createobstaclesGroup(distance, 19);
 }
 
 function updatePlay()
@@ -436,17 +446,38 @@ function updatePlay()
     game.physics.arcade.overlap(obstaclesGroup,ball, rebound, null, this);
     manageGravity();
 
-}
+    if (juega) ball.animations.play('pelota');
 
-function createLevel()
-{
-    let distance = game.height;
-    for(let i = 0; i < gaps.length ; i++)
+    if (leftBTN.isDown) 
     {
-        createobstaclesGroup(distance,gaps[i]);
-        distance = distance + 50
+        for(let i = 0; i < obstaclesGroup.children.length; i++)
+        {
+            game.physics.arcade.enable(obstaclesGroup.children[i]);
+            obstaclesGroup.children[i].body.velocity.x = -300;
+            
+        }
+    }
+    else if (rightBTN.isDown) 
+    {
+        for(let i = 0; i < obstaclesGroup.children.length; i++)
+        {
+            game.physics.arcade.enable(obstaclesGroup.children[i]);
+            obstaclesGroup.children[i].body.velocity.x = 300;
+            
+        }
+    }
+    else 
+    {
+        for(let i = 0; i < obstaclesGroup.children.length; i++)
+        {
+            game.physics.arcade.enable(obstaclesGroup.children[i]);
+            obstaclesGroup.children[i].body.velocity.x = 0;
+            
+        }
     }
 }
+
+
 function manageGravity()
 {
 
@@ -471,26 +502,23 @@ function createBall()
     let x = game.world.centerX - 20;
     let y = game.world.centerY * 0.1  ;
     ball = game.add.sprite(x,y, 'ball');
-    ball.width =40;
-    ball.height = 40;
-    //ball.anchor.setTo(0.05, 0.05);
-    game.physics.arcade.enable(ball); 
 
-    //ball.body.collideWorldBounds = true;
-    //createobstaclesGroup(4);
+    game.physics.arcade.enable(ball);
+    ball.animations.add('pelota', [0,1,2,3,4,5,6,7], 14, true);
 
 }
 
 
 function createobstaclesGroup(distance,gap)
 {
-    for(let i = 0,  j = 0; j < 8; i = i + 50, j++)
+    for(let i = -500,  j = -10; j < 18; i = i + 80, j++)
     {
-        if(j != gap)
+        if(j != gap )
         createObstacle(i, game.height + distance);
     }
 
 }
+
 function rebound(ball, _obstacle)
 {
     if(_obstacle.key = "slab")
@@ -498,26 +526,31 @@ function rebound(ball, _obstacle)
         for(let i = 0; i < obstaclesGroup.children.length; i++)
         {
             game.physics.arcade.enable(obstaclesGroup.children[i]);
-            obstaclesGroup.children[i].body.velocity.y = OBSTACLE_SPEED;
+            obstaclesGroup.children[i].body.velocity.y = OBSTACLE_SPEED;       
+            
+            juega = false;
+            ball.animations.stop(null, true);
+            ball.animations.add('muerte', [0,1,2,3,4], 10, false);
+            ball.loadTexture('playerDeath', true);
+            ball.animations.play('muerte');
         }
     }
+
+    
 }
 
 function createObstacle(x,y)
 {
     obstacle = game.add.sprite(x,y, 'slab');
     game.physics.arcade.enable(obstacle);
-    obstacle.width = 50;
+    obstacle.width = 80;
     obstacle.body.velocity.y = -OBSTACLE_SPEED;
     obstaclesGroup.add(obstacle);
 
 }
 
 
-function createLevel()
-{
-   
-}
+
 
 
 function goToWelcome() {
