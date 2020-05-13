@@ -38,7 +38,6 @@ const DOWNARROW_KEYCODE = 40;
 
 let juega = true;
 
-
 let virus;
 
 let pUp;
