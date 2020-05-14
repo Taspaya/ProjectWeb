@@ -204,13 +204,13 @@ function createLevelOne()
 
     for(let i = 0; i < gaps.length ; i++)
     {
-        createobstaclesGroup(distance,gaps[i], pups[i], 2);
+        createobstaclesGroup(distance,gaps[i], pups[i], 2, true);
         createVirus(0,distance - 80);
 
         distance = distance + 450;
     }    
 
-    createobstaclesGroup(distance, 19);
+    createobstaclesGroup(distance, 19, null, null,false);
 }
 
 function createKeyControls()
@@ -233,7 +233,7 @@ function createBall()
 
 }
 
-function createobstaclesGroup(distance,gap, powerup, trap)
+function createobstaclesGroup(distance,gap, powerup, trap, breakable)
 {
 
     for(let i = -500,  j = -10; j < 18; i = i + 80, j++)
@@ -243,7 +243,7 @@ function createobstaclesGroup(distance,gap, powerup, trap)
             createTrap(i,game.height + distance);
         }
         else if(j != gap )
-        createObstacle(i, game.height + distance);
+        createObstacle(i, game.height + distance, breakable);
         else if (j == gap && powerup)
         createPowerUp(i,  game.height + distance);
     }
@@ -320,10 +320,10 @@ function collapseVirus(ball, _virus)
 function rebound(ball, _obstacle)
 {
 
-    if(_obstacle.key == "slab")
+    if(_obstacle.key == "slab" || _obstacle.key == "slab_end" )
     {
         havePower = false;
-        if(_obstacle.body.velocity.y < THRESHOLD) _obstacle.destroy();
+        if(_obstacle.body.velocity.y < THRESHOLD && _obstacle.key == "slab" ) _obstacle.destroy();
 
         for(let i = 0; i < obstaclesGroup.children.length; i++)
         {
@@ -340,20 +340,14 @@ function rebound(ball, _obstacle)
         {            
             game.physics.arcade.enable(virusGroup.children[i]);
             virusGroup.children[i].body.velocity.y = OBSTACLE_SPEED; 
-
         }
         for(let i = 0; i < pUpsGroup.children.length; i++)
         {            
             game.physics.arcade.enable(pUpsGroup.children[i]);
             pUpsGroup.children[i].body.velocity.y = OBSTACLE_SPEED; 
-
         }
 
-    }
-
-    
-
-    
+    }    
 }
 
 function updateHealthBar(damage) {
@@ -379,15 +373,22 @@ function createHUD() {
 
 }
 
-function createObstacle(x,y)
+function createObstacle(x,y, breakable)
 {
-    obstacle = game.add.sprite(x,y, 'slab');
+    if(breakable == false)
+    {
+        obstacle = game.add.sprite(x,y, 'slab_end');
+    }
+    else
+    {
+        obstacle = game.add.sprite(x,y, 'slab');
+    }
     game.physics.arcade.enable(obstacle);
     obstacle.width = 80;
     obstacle.height = 20;
+
     obstacle.body.velocity.y = -OBSTACLE_SPEED;
     obstaclesGroup.add(obstacle);
-    
     obstacle.body.checkCollision.right = false;
     obstacle.body.checkCollision.left = false;
 

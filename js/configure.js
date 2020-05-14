@@ -10,6 +10,7 @@ function preloadImages()
     game.load.spritesheet('platform', 'assets/imgs/obstacleSprite.png', 100, 25, 5);
     game.load.spritesheet('playerDeath', 'assets/imgs/albondigaDeath.png', 60, 60, 5);
     game.load.image('slab', 'assets/imgs/obstacle.png');
+    game.load.image('obstacle_end', 'assets/imgs/obstacle_end.png');
 
 
     game.load.image('trap', 'assets/imgs/trap.png');
