@@ -204,7 +204,7 @@ function createLevelOne()
 
     for(let i = 0; i < gaps.length ; i++)
     {
-        createobstaclesGroup(distance,gaps[i], pups[i]);
+        createobstaclesGroup(distance,gaps[i], pups[i], 2);
         createVirus(0,distance - 80);
 
         distance = distance + 450;
@@ -229,16 +229,20 @@ function createBall()
     ball.width = 30;
     ball.height = 30;
     game.physics.arcade.enable(ball);
-
     ball.animations.add('pelota', [0,1,2,3,4,5,6,7], 14, true);
 
 }
 
 function createobstaclesGroup(distance,gap, powerup, trap)
 {
+
     for(let i = -500,  j = -10; j < 18; i = i + 80, j++)
     {
-        if(j != gap )
+        if(j == trap)
+        {
+            createTrap(i,game.height + distance);
+        }
+        else if(j != gap )
         createObstacle(i, game.height + distance);
         else if (j == gap && powerup)
         createPowerUp(i,  game.height + distance);
@@ -248,7 +252,7 @@ function createobstaclesGroup(distance,gap, powerup, trap)
 
 function getPowerUp(ball, _pup)
 {
-    if(_pup.key = "pup")
+    if(_pup.key = "pup" && havePower == false)
     {
         havePower = true;
         _pup.destroy();
@@ -283,18 +287,33 @@ function powerup(){
   
 }
 
+function collapseTrap(ball, _trap)
+{
+
+    if(_trap.key == "trap")
+    {
+        updateHealthBar(.5);
+
+        // AQUI ANMACIÓN DE DAÑO O LO QUE SEA
+
+        _trap.destroy();
+    }
+
+}
+
 function collapseVirus(ball, _virus)
 {
     if(_virus.key == "virus")
     {
         updateHealthBar(.5);
-        // AQUI FUNCIÓN DE LO DE BAJAR LA VIDA
 
         // AQUI ANMACIÓN DE DAÑO O LO QUE SEA
         
         _virus.destroy();
 
     }
+
+    collapseTrap(ball, _virus);
 
 }
 
@@ -399,13 +418,13 @@ function createPowerUp(x, y)
 
 function createTrap(x,y)
 {
-    trap = game.add.sprite(x + 15,  y - 15, 'trap');
+    trap = game.add.sprite(x,  y, 'trap');
     game.physics.arcade.enable(trap);
-    trap.width = 40;
-    trap.height = 50;
+    trap.width = 80;
+    trap.height = 20;
     trap.body.velocity.y = -OBSTACLE_SPEED;
     trap.body.velocity.x = 0;
-    trap.add(trap);
+    virusGroup.add(trap);
 }
 
 function goToWelcome() {
