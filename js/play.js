@@ -203,7 +203,7 @@ function virusDance(virus)
     };
     
     // we make it a relly fast movement
-    var duration = 100;
+    var duration = 1000;
     // because it will repeat
     var repeat = 4;
     // we use bounce in-out to soften it a little bit
@@ -215,9 +215,8 @@ function virusDance(virus)
     var yoyo = true;
     
     var dance = game.add.tween(virus).to(properties, duration, ease, autoStart, delay, 4, yoyo);
-    
     // we're using this line for the example to run indefinitely
-    dance.onComplete.addOnce(virusDance);
+   // dance.onComplete.addOnce(virusDance);
     
     // let the earthquake begins
     dance.start();
@@ -227,7 +226,18 @@ function makeItDance()
 {
     for(let i = 0; i < virusGroup.length; i++)
     {
-        if(ball.body.y > virusGroup.children[i].body.y - 50 && ball.body.y < virusGroup.children[i].body.y + 50 ) virusDance(virusGroup.children[i].body);
+        if(ball.body.y > virusGroup.children[i].body.y - 50 && ball.body.y < virusGroup.children[i].body.y + 50 ) 
+        {
+            if(virusGroup.children[i].key == 'virus')
+            {
+                virusDance(virusGroup.children[i].body);
+                virusGroup.children[i].key = 'dancing';
+            }
+
+
+        }
+        
+    
     }
 }
 
@@ -365,7 +375,6 @@ function collapseVirus(ball, _virus)
     collapseTrap(ball, _virus);
 
 }
-
 
 function rebound(ball, _obstacle)
 {
