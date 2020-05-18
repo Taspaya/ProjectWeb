@@ -14,16 +14,16 @@ const SQUARE_SPEED_Y = 0;       // BALL_SPEEDY
 
 // OBSTACLES
 
-const OBSTACLE_SPEED = 120;
-const OBSTACLE_SPEEDX = 15;
+const OBSTACLE_SPEED = 100;
+const OBSTACLE_SPEEDX = 150;
 const OBSTACLE_COLOR = "#0360ff";
 const OBSTACLE_WIDTH = 100;
 
 //PHYSIX
 
 const PROBABILITY_ACCELERATE = 0.7;
-const GLOBAL_ACCELERATION = 2;
-const THRESHOLD = -400;
+const GLOBAL_ACCELERATION = 3;
+const THRESHOLD = -500;
 
 // KEYCODES
 
@@ -49,6 +49,8 @@ let trap;
 let ball;
 let rightBTN;
 let leftBTN;
+let qBTN;
+let qBool;
 
 let cursors;
 
@@ -59,11 +61,14 @@ let random;
 let obstaclesGroup;
 let virusGroup;
 let pUpsGroup;
+let trapsGroup;
+let trapsDancingGroup;
 
 let havePower = false;
 
 let gap;
-let gaps = [-2 , 1 , 3 , 0 , 0 , 0 , 1 , 2 , 1 ];
+let gaps    =       [-2 , 1 , 3 , 0 , 0 , 0 , 1 , 2 , 1 ];
+let gapsTwo =       [-2 , 1 , 3 , 0 , 0 , 0 , 1 , 2 , 1 ];
 
 let totalPlataformas = 10;
 
@@ -79,8 +84,6 @@ let continueGame = true;
 let Currentlifes = 3;   
 let counter = 0;
 
-//if(body.touching.down){}
-
 let playState = {
     create: createPlay,
     update: updatePlay
@@ -91,68 +94,51 @@ function createPlay()
     leftBTN = game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
     rightBTN = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
 
+    qBool = false;
     game.input.enabled = true;
     havePower = false;
     obstaclesGroup = game.add.group();
     virusGroup = game.add.group();
     pUpsGroup = game.add.group();
+    trapsGroup = game.add.group();
+    trapsDancingGroup = game.add.group();
+    trapsDancingGroup.enableBody = true;
+    trapsGroup.enableBody = true;
     obstaclesGroup.enableBody = true;
     virusGroup.enableBody = true;
     pUpsGroup.enableBody = true;
     createKeyControls();
     createBall();
     createHUD();
-    createLevelOne();
-
+    createLevelTwo();
+    //createLevelOne();
 }
 
 function updatePlay()
 {
+    if(qBTN.isDown)
+    {
+        if(qBool) qBool = false;
+        else qBool = true;
+    }
+
     game.physics.arcade.overlap(obstaclesGroup,ball, rebound, null, this);
     game.physics.arcade.overlap(virusGroup, ball, collapseVirus, null, this);
     game.physics.arcade.overlap(pUpsGroup, ball, getPowerUp, null, this);
-    
-    powerup();
+    game.physics.arcade.overlap(trapsGroup, ball, collapseTrap, null, this);
 
+    powerup();
     manageGravity();
 
     if (juega) ball.animations.play('pelota');
 
-    if (leftBTN.isDown) 
+    if (leftBTN.isDown || game.input.mousePointer.x > game.width/2 && qBool) 
     {
-        for(let i = 0; i < obstaclesGroup.children.length; i++)
-        {
-            game.physics.arcade.enable(obstaclesGroup.children[i]);
-            obstaclesGroup.children[i].body.velocity.x = -300;
-        }
-        for(let i = 0; i < virusGroup.children.length; i++)
-        {
-            game.physics.arcade.enable(virusGroup.children[i]);
-            virusGroup.children[i].body.velocity.x = -300;
-        }
-        for(let i = 0; i < pUpsGroup.children.length; i++)
-        {
-            game.physics.arcade.enable(pUpsGroup.children[i]);
-            pUpsGroup.children[i].body.velocity.x = -300;
-        }
+        MoveLeft();
     }
-    else if (rightBTN.isDown) 
+    else if (rightBTN.isDown || game.input.mousePointer.x < game.width/2 && qBool) 
     {
-        for(let i = 0; i < obstaclesGroup.children.length; i++)
-        {
-            game.physics.arcade.enable(obstaclesGroup.children[i]);
-            obstaclesGroup.children[i].body.velocity.x = 300;
-        }
-        for(let i = 0; i < virusGroup.children.length; i++)
-        {
-            game.physics.arcade.enable(virusGroup.children[i]);
-            virusGroup.children[i].body.velocity.x = 300;
-        }
-        for(let i = 0; i < pUpsGroup.children.length; i++)
-        {
-            game.physics.arcade.enable(pUpsGroup.children[i]);
-            pUpsGroup.children[i].body.velocity.x = 300;
-        }
+        MoveRight();
     }
     else 
     {
@@ -171,30 +157,78 @@ function updatePlay()
             game.physics.arcade.enable(pUpsGroup.children[i]);
             pUpsGroup.children[i].body.velocity.x = 0;
         }
+        for(let i = 0; i < trapsGroup.children.length; i++)
+        {
+            game.physics.arcade.enable(trapsGroup.children[i]);
+            trapsGroup.children[i].body.velocity.x = 0;
+        }
     }
+
+  makeItDance(); // ESTO ESTA MAL EN EL UPDATE, HAY QUE PONER UN BOOL
 }
 
 function manageGravity()
 {
-
     for(let i = 0; i < obstaclesGroup.children.length; i++)
     {
         game.physics.arcade.enable(obstaclesGroup.children[i]);
         obstaclesGroup.children[i].body.velocity.y = obstaclesGroup.children[i].body.velocity.y -  GLOBAL_ACCELERATION;
     }
-
     for(let i = 0; i < virusGroup.children.length; i++)
     {
         game.physics.arcade.enable(virusGroup.children[i]);
         virusGroup.children[i].body.velocity.y = virusGroup.children[i].body.velocity.y - GLOBAL_ACCELERATION;
     }
-
     for(let i = 0; i < pUpsGroup.children.length; i++)
     {
         game.physics.arcade.enable(pUpsGroup.children[i]);
         pUpsGroup.children[i].body.velocity.y = pUpsGroup.children[i].body.velocity.y - GLOBAL_ACCELERATION;
     }
+    for(let i = 0; i < trapsGroup.children.length; i++)
+    {
+        game.physics.arcade.enable(trapsGroup.children[i]);
+        trapsGroup.children[i].body.velocity.y = trapsGroup.children[i].body.velocity.y - GLOBAL_ACCELERATION;
+    }
+}
 
+function virusDance(virus) 
+{
+  
+    // define the camera offset for the quake
+    var rumbleOffset = 50;
+    
+    // we need to move according to the camera's current position
+    var properties = {
+      x: virus.x - rumbleOffset
+    };
+    
+    // we make it a relly fast movement
+    var duration = 100;
+    // because it will repeat
+    var repeat = 4;
+    // we use bounce in-out to soften it a little bit
+    var ease = Phaser.Easing.Bounce.InOut;
+    var autoStart = false;
+    // a little delay because we will run it indefinitely
+    var delay = 1000;
+    // we want to go back to the original position
+    var yoyo = true;
+    
+    var dance = game.add.tween(virus).to(properties, duration, ease, autoStart, delay, 4, yoyo);
+    
+    // we're using this line for the example to run indefinitely
+    dance.onComplete.addOnce(virusDance);
+    
+    // let the earthquake begins
+    dance.start();
+}
+  
+function makeItDance()
+{
+    for(let i = 0; i < virusGroup.length; i++)
+    {
+        if(ball.body.y > virusGroup.children[i].body.y - 50 && ball.body.y < virusGroup.children[i].body.y + 50 ) virusDance(virusGroup.children[i].body);
+    }
 }
 
 function createLevelOne()
@@ -213,10 +247,27 @@ function createLevelOne()
     createobstaclesGroup(distance, 19, null, null,false);
 }
 
+function createLevelTwo()
+{
+
+    let distance = game.height;
+
+    for(let i = 0; i < gapsTwo.length ; i++)
+    {
+        createobstaclesGroup(distance,gapsTwo[i], pups[i], 2, true);
+        createVirus(0,distance - 80);
+
+        distance = distance + 450;
+    }
+
+    createobstaclesGroup(distance, 19, null, null,false);
+}
+
 function createKeyControls()
 {
     rightBTN = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
     leftBTN = game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
+    qBTN = game.input.keyboard.addKey(Phaser.Keyboard.Q);
 }
 
 function createBall()
@@ -235,7 +286,6 @@ function createBall()
 
 function createobstaclesGroup(distance,gap, powerup, trap, breakable)
 {
-
     for(let i = -500,  j = -10; j < 18; i = i + 80, j++)
     {
         if(j == trap)
@@ -247,7 +297,6 @@ function createobstaclesGroup(distance,gap, powerup, trap, breakable)
         else if (j == gap && powerup)
         createPowerUp(i,  game.height + distance);
     }
-
 }
 
 function getPowerUp(ball, _pup)
@@ -317,6 +366,7 @@ function collapseVirus(ball, _virus)
 
 }
 
+
 function rebound(ball, _obstacle)
 {
 
@@ -346,6 +396,12 @@ function rebound(ball, _obstacle)
             game.physics.arcade.enable(pUpsGroup.children[i]);
             pUpsGroup.children[i].body.velocity.y = OBSTACLE_SPEED; 
         }
+        for(let i = 0; i < trapsGroup.children.length; i++)
+        {            
+            game.physics.arcade.enable(trapsGroup.children[i]);
+            trapsGroup.children[i].body.velocity.y = OBSTACLE_SPEED; 
+        }        
+        
 
     }    
 }
@@ -389,8 +445,6 @@ function createObstacle(x,y, breakable)
 
     obstacle.body.velocity.y = -OBSTACLE_SPEED;
     obstaclesGroup.add(obstacle);
-    obstacle.body.checkCollision.right = false;
-    obstacle.body.checkCollision.left = false;
 
 }
 
@@ -425,7 +479,7 @@ function createTrap(x,y)
     trap.height = 20;
     trap.body.velocity.y = -OBSTACLE_SPEED;
     trap.body.velocity.x = 0;
-    virusGroup.add(trap);
+    trapsGroup.add(trap);
 }
 
 function goToWelcome() {
@@ -433,4 +487,62 @@ function goToWelcome() {
     game.state.start('welcome');
 }
 
+function MoveRight()
+{
 
+    for(let i = 0; i < obstaclesGroup.children.length; i++)
+    {
+        game.physics.arcade.enable(obstaclesGroup.children[i]);
+        obstaclesGroup.children[i].body.velocity.x =  -  OBSTACLE_SPEEDX;
+    }
+
+    for(let i = 0; i < virusGroup.children.length; i++)
+    {
+        game.physics.arcade.enable(virusGroup.children[i]);
+        virusGroup.children[i].body.velocity.x = - OBSTACLE_SPEEDX;
+    }
+
+    for(let i = 0; i < pUpsGroup.children.length; i++)
+    {
+        game.physics.arcade.enable(pUpsGroup.children[i]);
+        pUpsGroup.children[i].body.velocity.x = - OBSTACLE_SPEEDX;
+    }
+
+    for(let i = 0; i < trapsGroup.children.length; i++)
+    {
+        game.physics.arcade.enable(trapsGroup.children[i]);
+        trapsGroup.children[i].body.velocity.x = - OBSTACLE_SPEEDX;
+
+    }
+
+    
+}
+
+function MoveLeft()
+{
+
+    for(let i = 0; i < obstaclesGroup.children.length; i++)
+    {
+        game.physics.arcade.enable(obstaclesGroup.children[i]);
+        obstaclesGroup.children[i].body.velocity.x =  OBSTACLE_SPEEDX;
+    }
+
+    for(let i = 0; i < virusGroup.children.length; i++)
+    {
+        game.physics.arcade.enable(virusGroup.children[i]);
+        virusGroup.children[i].body.velocity.x =  OBSTACLE_SPEEDX;
+    }
+
+    for(let i = 0; i < pUpsGroup.children.length; i++)
+    {
+        game.physics.arcade.enable(pUpsGroup.children[i]);
+        pUpsGroup.children[i].body.velocity.x = OBSTACLE_SPEEDX;
+    }
+
+    
+    for(let i = 0; i < trapsGroup.children.length; i++)
+    {
+        game.physics.arcade.enable(trapsGroup.children[i]);
+        trapsGroup.children[i].body.velocity.x =  OBSTACLE_SPEEDX;
+    }
+}
