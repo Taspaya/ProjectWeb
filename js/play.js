@@ -14,7 +14,7 @@ const SQUARE_SPEED_Y = 0;       // BALL_SPEEDY
 
 // OBSTACLES
 
-const OBSTACLE_SPEED = 100;
+const OBSTACLE_SPEED = 200;
 const OBSTACLE_SPEEDX = 150;
 const OBSTACLE_COLOR = "#0360ff";
 const OBSTACLE_WIDTH = 100;
@@ -38,6 +38,12 @@ const DOWNARROW_KEYCODE = 40;
 
 const max_vida = 100;
 
+var indexWhereToFix;
+var style;
+let letter;
+
+let ava;
+
 let juega = true;
 
 let virus;
@@ -46,10 +52,12 @@ let pUp;
 
 let trap;
 
+let star;
 let ball;
 let rightBTN;
 let leftBTN;
 let qBTN;
+let fbtn;
 let qBool;
 
 let cursors;
@@ -58,6 +66,8 @@ let global_speed = 2;
 let obs;
 let random;
 
+
+let bgGroup;
 let obstaclesGroup;
 let virusGroup;
 let pUpsGroup;
@@ -68,11 +78,12 @@ let havePower = false;
 
 let gap;
 let gaps    =       [-2 , 1 , 3 , 0 , 0 , 0 , 1 , 2 , 1 ];
-let gapsTwo =       [-2 , 1 , 3 , 0 , 0 , 0 , 1 , 2 , 1 ];
+let gapsTwo =       ['L' , 1 , 3 , 0 , 0 , 0 , 1 , 2 , 1 ];
 
 let totalPlataformas = 10;
 
 let pups = [false , false , true , false , true , false , false , false , true ];
+let pupsTwo = [false , false , false , false , false , false , false , false , false ];
 
 let rightArrowPressed = false,
     leftArrowPressed = false,
@@ -84,31 +95,45 @@ let continueGame = true;
 let Currentlifes = 3;   
 let counter = 0;
 
+//#endregion
+
+
 let playState = {
     create: createPlay,
     update: updatePlay
 };
 
+
+
 function createPlay()
 {
+    
+    game.stage.backgroundColor = 0x050035;
     leftBTN = game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
     rightBTN = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
 
+    ava = false;
     qBool = false;
     game.input.enabled = true;
     havePower = false;
+    bgGroup = game.add.group();
     obstaclesGroup = game.add.group();
     virusGroup = game.add.group();
     pUpsGroup = game.add.group();
     trapsGroup = game.add.group();
     trapsDancingGroup = game.add.group();
+    bgGroup.enableBody = true;
     trapsDancingGroup.enableBody = true;
     trapsGroup.enableBody = true;
     obstaclesGroup.enableBody = true;
     virusGroup.enableBody = true;
     pUpsGroup.enableBody = true;
+
+    
+    generateBg();
     createKeyControls();
     createBall();
+    style = { font: "32px Arial", fill: "#ff0044", wordWrap: true, wordWrapWidth: ball.width, align: "center", backgroundColor: "#ffff00" };
     createHUD();
     createLevelTwo();
     //createLevelOne();
@@ -121,7 +146,6 @@ function updatePlay()
         if(qBool) qBool = false;
         else qBool = true;
     }
-
     game.physics.arcade.overlap(obstaclesGroup,ball, rebound, null, this);
     game.physics.arcade.overlap(virusGroup, ball, collapseVirus, null, this);
     game.physics.arcade.overlap(pUpsGroup, ball, getPowerUp, null, this);
@@ -129,6 +153,8 @@ function updatePlay()
 
     powerup();
     manageGravity();
+   
+
 
     if (juega) ball.animations.play('pelota');
 
@@ -164,7 +190,11 @@ function updatePlay()
         }
     }
 
-  makeItDance(); // ESTO ESTA MAL EN EL UPDATE, HAY QUE PONER UN BOOL
+    makeItDance();    
+    fixLetterToSlab();
+    deleteStuff();
+
+
 }
 
 function manageGravity()
@@ -189,11 +219,17 @@ function manageGravity()
         game.physics.arcade.enable(trapsGroup.children[i]);
         trapsGroup.children[i].body.velocity.y = trapsGroup.children[i].body.velocity.y - GLOBAL_ACCELERATION;
     }
+    for(let i = 0; i < bgGroup.children.length; i++)
+    {
+        game.physics.arcade.enable(bgGroup.children[i]);
+        bgGroup.children[i].body.velocity.y = bgGroup.children[i].body.velocity.y - GLOBAL_ACCELERATION;
+    }
 }
 
 function virusDance(virus) 
 {
-  
+
+  /*
     // define the camera offset for the quake
     var rumbleOffset = 50;
     
@@ -219,25 +255,27 @@ function virusDance(virus)
    // dance.onComplete.addOnce(virusDance);
     
     // let the earthquake begins
-    dance.start();
+    dance.start();*/
+
+    if(virus.x - ball.x > 0) 
+    virus.velocity.x = -150;
+    else 
+    virus.velocity.x = 150;   
+
 }
   
 function makeItDance()
 {
     for(let i = 0; i < virusGroup.length; i++)
     {
-        if(ball.body.y > virusGroup.children[i].body.y - 50 && ball.body.y < virusGroup.children[i].body.y + 50 ) 
-        {
-            if(virusGroup.children[i].key == 'virus')
-            {
-                virusDance(virusGroup.children[i].body);
-                virusGroup.children[i].key = 'dancing';
+        if(!virusGroup.children[i].isDancing)
+        {       
+             if(ball.body.y > virusGroup.children[i].body.y - 50 && ball.body.y < virusGroup.children[i].body.y + 50 ) 
+            { 
+                    virusDance(virusGroup.children[i].body);
             }
-
-
         }
-        
-    
+
     }
 }
 
@@ -249,8 +287,7 @@ function createLevelOne()
     for(let i = 0; i < gaps.length ; i++)
     {
         createobstaclesGroup(distance,gaps[i], pups[i], 2, true);
-        createVirus(0,distance - 80);
-
+        createVirus(0,distance - 40);
         distance = distance + 450;
     }    
 
@@ -264,20 +301,30 @@ function createLevelTwo()
 
     for(let i = 0; i < gapsTwo.length ; i++)
     {
-        createobstaclesGroup(distance,gapsTwo[i], pups[i], 2, true);
-        createVirus(0,distance - 80);
+        if(gapsTwo[i] != 'L')
+        {
+            createobstaclesGroup(distance,gapsTwo[i], pupsTwo[i], 2, true);
+            createVirus(0,distance - 40);
+        }
+        else
+        {
+            createObtacleGroupWithLetter(distance, "L", 6)
+        }
 
+        if(i == 2) createshield(obstaclesGroup.children[8].x,distance);
         distance = distance + 450;
     }
 
     createobstaclesGroup(distance, 19, null, null,false);
 }
 
+
 function createKeyControls()
 {
     rightBTN = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
     leftBTN = game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
     qBTN = game.input.keyboard.addKey(Phaser.Keyboard.Q);
+    fbtn = game.input.keyboard.addKey(Phaser.Keyboard.L);
 }
 
 function createBall()
@@ -294,7 +341,7 @@ function createBall()
 
 }
 
-function createobstaclesGroup(distance,gap, powerup, trap, breakable)
+function createobstaclesGroup(distance, gap, powerup, trap, breakable)
 {
     for(let i = -500,  j = -10; j < 18; i = i + 80, j++)
     {
@@ -307,6 +354,18 @@ function createobstaclesGroup(distance,gap, powerup, trap, breakable)
         else if (j == gap && powerup)
         createPowerUp(i,  game.height + distance);
     }
+}
+
+function createObtacleGroupWithLetter(distance, text, index)
+{
+    for(let i = -500,  j = -10; j < 18; i = i + 80, j++)
+    {
+        createObstacle(i, game.height + distance, false);
+    }
+
+    ava = true;
+    letter = game.add.text(0, 0, text, style)
+    indexWhereToFix = 8;
 }
 
 function getPowerUp(ball, _pup)
@@ -411,7 +470,11 @@ function rebound(ball, _obstacle)
             trapsGroup.children[i].body.velocity.y = OBSTACLE_SPEED; 
         }        
         
-
+        for(let i = 0; i < bgGroup.children.length; i++)
+        {            
+            game.physics.arcade.enable(bgGroup.children[i]);
+            bgGroup.children[i].body.velocity.y = OBSTACLE_SPEED; 
+        }    
     }    
 }
 
@@ -452,23 +515,61 @@ function createObstacle(x,y, breakable)
     obstacle.width = 80;
     obstacle.height = 20;
 
-    obstacle.body.velocity.y = -OBSTACLE_SPEED;
+    obstacle.body.velocity.y = -OBSTACLE_SPEED;    
     obstaclesGroup.add(obstacle);
+}
 
+function fixLetterToSlab()
+{
+    
+    if(ava)
+    {
+        if(fbtn.isDown) 
+        {
+            game.add.tween(obstaclesGroup.children[indexWhereToFix]).to( { alpha: 0 }, 2000, Phaser.Easing.Linear.None, true, 0, 1000, true);
+
+        }
+        letter.x = Math.floor(obstaclesGroup.children[indexWhereToFix].x + obstaclesGroup.children[indexWhereToFix].width / 2);
+        letter.y = Math.floor(obstaclesGroup.children[indexWhereToFix].y + obstaclesGroup.children[indexWhereToFix].height / 2);
+    }
+    else
+    {
+        letter.x = Math.floor(-20);
+        letter.y = Math.floor(-20);
+    }
+    if(obstaclesGroup.children[indexWhereToFix].alpha < 0.5)
+    {
+        ava = false;
+        obstaclesGroup.children[indexWhereToFix].destroy();
+    }
 }
 
 function createVirus(x,y)
 {
     virus = game.add.sprite(x, game.height + y,'virus');
+    virus.isDancing = false;    
     game.physics.arcade.enable(virus);
-    virus.width = 80;
-    virus.height = 60;
+    virus.width = 40;
+    virus.height = 30;
     virus.body.velocity.y = -OBSTACLE_SPEED;
     virus.body.velocity.x = 0;
     virusGroup.add(virus);
 }
 
-function createPowerUp(x, y)
+function createshield(x,y)
+{
+    pUp = game.add.sprite(x + 15,  y - 15,'shield');
+    game.physics.arcade.enable(pUp);
+    pUp.width = 60;
+    pUp.height = 60;
+    pUp.body.velocity.y = -OBSTACLE_SPEED;
+    pUp.body.velocity.x = 0;
+    pUpsGroup.add(pUp);
+
+
+}
+
+function createPowerUp(x, y, level2)
 {
     pUp = game.add.sprite(x + 15,  y - 15,'pup');
     game.physics.arcade.enable(pUp);
@@ -491,7 +592,8 @@ function createTrap(x,y)
     trapsGroup.add(trap);
 }
 
-function goToWelcome() {
+function goToWelcome() 
+{
     game.world.setBounds(0, 0, game.width, game.height);
     game.state.start('welcome');
 }
@@ -521,10 +623,24 @@ function MoveRight()
     {
         game.physics.arcade.enable(trapsGroup.children[i]);
         trapsGroup.children[i].body.velocity.x = - OBSTACLE_SPEEDX;
-
     }
 
     
+}
+
+function generateBg()
+{
+
+    for(let i = 0; i < 700; i++)
+    {
+        star = game.add.sprite(game.rnd.integerInRange(0, game.width),  game.rnd.integerInRange(0, game.height + 20000), 'star');
+        game.physics.arcade.enable(star);
+        star.width = 10;
+        star.height = 10;
+        star.body.velocity.y = -OBSTACLE_SPEED;
+        bgGroup.add(star);
+    }
+
 }
 
 function MoveLeft()
@@ -555,3 +671,25 @@ function MoveLeft()
         trapsGroup.children[i].body.velocity.x =  OBSTACLE_SPEEDX;
     }
 }
+
+function deleteStuff()
+{
+
+    for(let i = 0; i < obstaclesGroup.children.length; i++)
+        if(obstaclesGroup.children[i].y < 0) obstaclesGroup.children[i].destroy();
+
+    for(let i = 0; i < virusGroup.children.length; i++)
+        if(virusGroup.children[i].y < 0) virusGroup.children[i].destroy();
+
+    for(let i = 0; i < pUpsGroup.children.length; i++)
+        if(pUpsGroup.children[i].y < 0) pUpsGroup.children[i].destroy();
+     
+    for(let i = 0; i < trapsGroup.children.length; i++)
+        if(trapsGroup.children[i].y < 0) trapsGroup.children[i].destroy();
+
+        
+    for(let i = 0; i < bgGroup.children.length; i++)
+        if(bgGroup.children[i].y < 0) bgGroup.children[i].destroy();
+
+}
+

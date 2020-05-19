@@ -21,7 +21,9 @@ function preloadImages()
     game.load.image('pup','assets/imgs/pup.png');
 
 
+    game.load.image('star','assets/imgs/stars.png');
 
+    game.load.image('shield','assets/imgs/shield.png');
 
 
     game.load.image('heart', 'assets/imgs/heart.png');
