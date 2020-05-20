@@ -36,7 +36,10 @@ const DOWNARROW_KEYCODE = 40;
 
 //#region GLOBALS
 
+
 const max_vida = 100;
+
+let currentLevel = 1;
 
 var indexWhereToFix;
 var style;
@@ -68,6 +71,7 @@ let random;
 
 
 let bgGroup;
+let shieldGroup;
 let obstaclesGroup;
 let virusGroup;
 let pUpsGroup;
@@ -75,6 +79,7 @@ let trapsGroup;
 let trapsDancingGroup;
 
 let havePower = false;
+let haveShield = false;
 
 let gap;
 let gaps    =       [-2 , 1 , 3 , 0 , 0 , 0 , 1 , 2 , 1 ];
@@ -103,11 +108,8 @@ let playState = {
     update: updatePlay
 };
 
-
-
 function createPlay()
 {
-    
     game.stage.backgroundColor = 0x050035;
     leftBTN = game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
     rightBTN = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
@@ -116,12 +118,14 @@ function createPlay()
     qBool = false;
     game.input.enabled = true;
     havePower = false;
+    shieldGroup = game.add.group();
     bgGroup = game.add.group();
     obstaclesGroup = game.add.group();
     virusGroup = game.add.group();
     pUpsGroup = game.add.group();
     trapsGroup = game.add.group();
     trapsDancingGroup = game.add.group();
+    shieldGroup.enableBody = true;
     bgGroup.enableBody = true;
     trapsDancingGroup.enableBody = true;
     trapsGroup.enableBody = true;
@@ -135,12 +139,16 @@ function createPlay()
     createBall();
     style = { font: "32px Arial", fill: "#ff0044", wordWrap: true, wordWrapWidth: ball.width, align: "center", backgroundColor: "#ffff00" };
     createHUD();
-    createLevelTwo();
+
+
+    levelGenerator(15); //numSlabs, gaps ,traps, breakable, pups, shields 
+    //createLevelTwo();
     //createLevelOne();
 }
 
 function updatePlay()
 {
+
     if(qBTN.isDown)
     {
         if(qBool) qBool = false;
@@ -150,6 +158,7 @@ function updatePlay()
     game.physics.arcade.overlap(virusGroup, ball, collapseVirus, null, this);
     game.physics.arcade.overlap(pUpsGroup, ball, getPowerUp, null, this);
     game.physics.arcade.overlap(trapsGroup, ball, collapseTrap, null, this);
+    game.physics.arcade.overlap(shieldGroup, ball, collapseShield, null, this);
 
     powerup();
     manageGravity();
@@ -188,10 +197,15 @@ function updatePlay()
             game.physics.arcade.enable(trapsGroup.children[i]);
             trapsGroup.children[i].body.velocity.x = 0;
         }
+        for(let i = 0; i < shieldGroup.children.length; i++)
+        {
+            game.physics.arcade.enable(shieldGroup.children[i]);
+            shieldGroup.children[i].body.velocity.x =  0;
+        }
     }
 
     makeItDance();    
-    fixLetterToSlab();
+    //fixLetterToSlab();
     deleteStuff();
 
 
@@ -223,52 +237,27 @@ function manageGravity()
     {
         game.physics.arcade.enable(bgGroup.children[i]);
         bgGroup.children[i].body.velocity.y = bgGroup.children[i].body.velocity.y - GLOBAL_ACCELERATION;
+    }    
+    for(let i = 0; i < shieldGroup.children.length; i++)
+    {
+        game.physics.arcade.enable(shieldGroup.children[i]);
+        shieldGroup.children[i].body.velocity.y = shieldGroup.children[i].body.velocity.y - GLOBAL_ACCELERATION;
     }
 }
 
 function virusDance(virus) 
 {
-
-  /*
-    // define the camera offset for the quake
-    var rumbleOffset = 50;
-    
-    // we need to move according to the camera's current position
-    var properties = {
-      x: virus.x - rumbleOffset
-    };
-    
-    // we make it a relly fast movement
-    var duration = 1000;
-    // because it will repeat
-    var repeat = 4;
-    // we use bounce in-out to soften it a little bit
-    var ease = Phaser.Easing.Bounce.InOut;
-    var autoStart = false;
-    // a little delay because we will run it indefinitely
-    var delay = 1000;
-    // we want to go back to the original position
-    var yoyo = true;
-    
-    var dance = game.add.tween(virus).to(properties, duration, ease, autoStart, delay, 4, yoyo);
-    // we're using this line for the example to run indefinitely
-   // dance.onComplete.addOnce(virusDance);
-    
-    // let the earthquake begins
-    dance.start();*/
-
     if(virus.x - ball.x > 0) 
     virus.velocity.x = -150;
     else 
     virus.velocity.x = 150;   
-
 }
   
 function makeItDance()
 {
     for(let i = 0; i < virusGroup.length; i++)
     {
-        if(!virusGroup.children[i].isDancing)
+        if(virusGroup.children[i].isDancing)
         {       
              if(ball.body.y > virusGroup.children[i].body.y - 50 && ball.body.y < virusGroup.children[i].body.y + 50 ) 
             { 
@@ -378,45 +367,96 @@ function getPowerUp(ball, _pup)
         for(let i = 0; i < obstaclesGroup.children.length; i++)
         {
             game.physics.arcade.enable(obstaclesGroup.children[i]);
-            obstaclesGroup.children[i].body.velocity.y = obstaclesGroup.children[i].body.velocity.y -  4;
+            obstaclesGroup.children[i].body.velocity.y = THRESHOLD;
         }
     
         for(let i = 0; i < virusGroup.children.length; i++)
         {
             game.physics.arcade.enable(virusGroup.children[i]);
-            virusGroup.children[i].body.velocity.y = virusGroup.children[i].body.velocity.y - 4;
+            virusGroup.children[i].body.velocity.y = THRESHOLD;
         }
     
         for(let i = 0; i < pUpsGroup.children.length; i++)
         {
             game.physics.arcade.enable(pUpsGroup.children[i]);
-            pUpsGroup.children[i].body.velocity.y = pUpsGroup.children[i].body.velocity.y - 4;
+            pUpsGroup.children[i].body.velocity.y = THRESHOLD;
+        }
+        for(let i = 0; i < trapsGroup.children.length; i++)
+        {
+            game.physics.arcade.enable(trapsGroup.children[i]);
+            trapsGroup.children[i].body.velocity.y = THRESHOLD;
         }
     }
 }
 
 function powerup(){
+    
     var icon = hudGroup.children[3];
  
-    if (havePower){
+    if (havePower)
+    {
         icon.visible = true;
     }
     else icon.visible = false;
   
 }
 
+function collapseShield(ball, shield )
+{
+
+    if(shield.key = "shield" && haveShield == false)
+    {
+        haveShield = true;
+        shield.destroy();
+        
+        for(let i = 0; i < obstaclesGroup.children.length; i++)
+        {
+            game.physics.arcade.enable(obstaclesGroup.children[i]);
+            obstaclesGroup.children[i].body.velocity.y = obstaclesGroup.children[i].body.velocity.y -  10;
+        }
+    
+        for(let i = 0; i < virusGroup.children.length; i++)
+        {
+            game.physics.arcade.enable(virusGroup.children[i]);
+            virusGroup.children[i].body.velocity.y = virusGroup.children[i].body.velocity.y - 10;
+        }
+    
+        for(let i = 0; i < pUpsGroup.children.length; i++)
+        {
+            game.physics.arcade.enable(pUpsGroup.children[i]);
+            pUpsGroup.children[i].body.velocity.y = pUpsGroup.children[i].body.velocity.y - 10;
+        }
+        for(let i = 0; i < pUpsGroup.children.length; i++)
+        {
+            game.physics.arcade.enable(pUpsGroup.children[i]);
+            pUpsGroup.children[i].body.velocity.y = pUpsGroup.children[i].body.velocity.y - 10;
+        }
+        for(let i = 0; i < shieldGroup.children.length; i++)
+        {
+            game.physics.arcade.enable(shieldGroup.children[i]);
+            shieldGroup.children[i].body.velocity.y = shieldGroup.children[i].body.velocity.y - 10;
+        }
+
+
+
+
+    }
+}
+
 function collapseTrap(ball, _trap)
 {
 
-    if(_trap.key == "trap")
+    if(_trap.key == "trap" && !haveShield)
     {
         updateHealthBar(.5);
-
         // AQUI ANMACIÓN DE DAÑO O LO QUE SEA
-
         _trap.destroy();
     }
-
+    else if(_trap.key == "trap" && haveShield) 
+    {
+        _trap.destroy();
+        haveShield = false;
+    }
 }
 
 function collapseVirus(ball, _virus)
@@ -438,7 +478,7 @@ function collapseVirus(ball, _virus)
 function rebound(ball, _obstacle)
 {
 
-    if(_obstacle.key == "slab" || _obstacle.key == "slab_end" )
+    if((_obstacle.key == "slab" || _obstacle.key == "slab_end") && !havePower )
     {
         havePower = false;
         if(_obstacle.body.velocity.y < THRESHOLD && _obstacle.key == "slab" ) _obstacle.destroy();
@@ -469,13 +509,22 @@ function rebound(ball, _obstacle)
             game.physics.arcade.enable(trapsGroup.children[i]);
             trapsGroup.children[i].body.velocity.y = OBSTACLE_SPEED; 
         }        
-        
         for(let i = 0; i < bgGroup.children.length; i++)
         {            
             game.physics.arcade.enable(bgGroup.children[i]);
             bgGroup.children[i].body.velocity.y = OBSTACLE_SPEED; 
         }    
-    }    
+        for(let i = 0; i < shieldGroup.children.length; i++)
+        {            
+            game.physics.arcade.enable(shieldGroup.children[i]);
+            shieldGroup.children[i].body.velocity.y = OBSTACLE_SPEED; 
+        }    
+    }
+    if((_obstacle.key == "slab" || _obstacle.key == "slab_end") && havePower )
+    {
+       if(_obstacle.key = "slab") _obstacle.destroy();
+       havePower = false;
+    }
 }
 
 function updateHealthBar(damage) {
@@ -544,10 +593,10 @@ function fixLetterToSlab()
     }
 }
 
-function createVirus(x,y)
+function createVirus(x,y, isDancing)
 {
-    virus = game.add.sprite(x, game.height + y,'virus');
-    virus.isDancing = false;    
+    virus = game.add.sprite(x, y - 30,'virus');
+    virus.isDancing = isDancing;    
     game.physics.arcade.enable(virus);
     virus.width = 40;
     virus.height = 30;
@@ -564,9 +613,7 @@ function createshield(x,y)
     pUp.height = 60;
     pUp.body.velocity.y = -OBSTACLE_SPEED;
     pUp.body.velocity.x = 0;
-    pUpsGroup.add(pUp);
-
-
+    shieldGroup.add(pUp);
 }
 
 function createPowerUp(x, y, level2)
@@ -598,6 +645,21 @@ function goToWelcome()
     game.state.start('welcome');
 }
 
+function generateBg()
+{
+
+    for(let i = 0; i < 700; i++)
+    {
+        star = game.add.sprite(game.rnd.integerInRange(0, game.width),  game.rnd.integerInRange(0, game.height + 20000), 'star');
+        game.physics.arcade.enable(star);
+        star.width = 10;
+        star.height = 10;
+        star.body.velocity.y = -OBSTACLE_SPEED;
+        bgGroup.add(star);
+    }
+
+}
+
 function MoveRight()
 {
 
@@ -625,22 +687,13 @@ function MoveRight()
         trapsGroup.children[i].body.velocity.x = - OBSTACLE_SPEEDX;
     }
 
-    
-}
-
-function generateBg()
-{
-
-    for(let i = 0; i < 700; i++)
+    for(let i = 0; i < shieldGroup.children.length; i++)
     {
-        star = game.add.sprite(game.rnd.integerInRange(0, game.width),  game.rnd.integerInRange(0, game.height + 20000), 'star');
-        game.physics.arcade.enable(star);
-        star.width = 10;
-        star.height = 10;
-        star.body.velocity.y = -OBSTACLE_SPEED;
-        bgGroup.add(star);
+        game.physics.arcade.enable(shieldGroup.children[i]);
+        shieldGroup.children[i].body.velocity.x =  - OBSTACLE_SPEEDX;
     }
-
+    
+    
 }
 
 function MoveLeft()
@@ -664,12 +717,18 @@ function MoveLeft()
         pUpsGroup.children[i].body.velocity.x = OBSTACLE_SPEEDX;
     }
 
-    
     for(let i = 0; i < trapsGroup.children.length; i++)
     {
         game.physics.arcade.enable(trapsGroup.children[i]);
         trapsGroup.children[i].body.velocity.x =  OBSTACLE_SPEEDX;
     }
+    
+    for(let i = 0; i < shieldGroup.children.length; i++)
+    {
+        game.physics.arcade.enable(shieldGroup.children[i]);
+        shieldGroup.children[i].body.velocity.x =  OBSTACLE_SPEEDX;
+    }
+    
 }
 
 function deleteStuff()
@@ -693,3 +752,36 @@ function deleteStuff()
 
 }
 
+function levelGenerator(numSlabs ,traps, breakable, pups, shields )
+{
+    let gap;
+    let trap;
+    let pup;
+    let virus,viruspos, virusDancing;
+
+    if(currentLevel == 1) virusDancing = false;
+    else virusDancing = true;
+
+    let y = game.height / 2;
+
+    for(let j  = 0 ; j < 20; j++ )
+    {  
+        viruspos = (game.rnd.integerInRange(-100, 800));
+        virus = game.rnd.integerInRange(0, 1); 
+        pup = game.rnd.integerInRange(0, 1);
+        gap = game.rnd.integerInRange(1, numSlabs - 1);
+        trap = game.rnd.integerInRange(1, numSlabs - 1);
+        if(trap == gap) trap = 5;
+        
+        for(let x = -150, i = 0; i < numSlabs; i++, x = x + obstacle.width) 
+        {
+            if(virus == 1) createVirus (viruspos, y , virusDancing);
+            if(i == trap)   createTrap(x,y);
+            if(i != gap && i != trap)    createObstacle(x,y);
+            if(pup == 1 && i == gap) createPowerUp(x,y);
+            if(virus == 1) createVirus()  
+        }
+        y = y + 300
+    }
+ 
+}
