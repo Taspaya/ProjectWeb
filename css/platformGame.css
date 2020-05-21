@@ -78,6 +78,13 @@ canvas {
     text-align: center;
 }
 
+#playScreen {
+    margin-top: 3em;
+    width: 100%;
+    text-align: center;
+    font-family: 'Crete Round', serif;
+}
+
 #albondiga{
     animation-duration: 4s;
     position: relative;
@@ -89,16 +96,16 @@ canvas {
     0%   {top:0px;}
     50%  {top:350px;}
     100% {top:0px;}
-  }
+}
 
 
-  #rosquilla{
+
+#rosquilla{
     animation-duration: 4s;
     bottom: 350px;
     position: relative;
     animation-iteration-count: infinite;
     animation-name: rosco;
-
 }
 
 @keyframes rosco {

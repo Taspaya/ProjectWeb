@@ -13,69 +13,57 @@ let playerDeathTimePenalty = DEFAULT_PLAYER_DEATH_TIME_PENALTY;
 let aboutScreen = document.getElementById("aboutScreen");
 aboutScreen.style.display = "none";
 
-
 let instructionScreen = document.getElementById("instructionsScreen");
 instructionScreen.style.display = "none";
 
 let playerScreen = document.getElementById("playerScreen");
 playerScreen.style.display = "none";
 
-let button2 = document.getElementById("button2");
+let playScreen = document.getElementById("playScreen");
+playScreen.style.display = "none";
 
+
+let button2 = document.getElementById("button2");
 let albondiga = document.getElementById("albondiga");
 
 
 button.disabled = true;
-//button2.disabled = true;
 
 let nombreJugador = null;
-
 let initialState = 
 {
   
 };
-
 
 let mainTween, downTween1, downTween2;
 let btnAbout, btnConfig, btnPlay;
 let levelToPlay;
 
 
-function moveToAboutScreen()
-{
-    let initialScreen = document.getElementById("initialScreen");
+function moveToAboutScreen(){
     initialScreen.style.display = "none";
-
-    let aboutScreen = document.getElementById("aboutScreen");
     aboutScreen.style.display = "inline-block";
 }
 
-
-function moveToInstructionsScreen()
-{
-    let initialScreen = document.getElementById("initialScreen");
+function moveToPlayScreen(){
     initialScreen.style.display = "none";
+    playScreen.style.display = "inline-block";
+}
 
-    let instructionsScreen = document.getElementById("instructionsScreen");
+function moveToInstructionsScreen(){
+    initialScreen.style.display = "none";
     instructionsScreen.style.display = "inline-block";
 }
 
-function moveToPlayerScreen()
-{
-    let initialScreen = document.getElementById("initialScreen");
+function moveToPlayerScreen(){
     initialScreen.style.display = "none";
-
-    let playerScreen = document.getElementById("playerScreen");
     playerScreen.style.display = "inline-block";
-
 }
 
 function onDownTweenCompleted(object, tween) 
 {
-    if (tween === downTween1)
-        downTween2.start();
-    else
-        downTween1.start();
+    if (tween === downTween1) downTween2.start();
+    else downTween1.start();
 }
 
 function elegirNombre(numero, nombreElegido){
@@ -103,12 +91,7 @@ function elegirNombre(numero, nombreElegido){
 
 }
 
-function avisame(){window.alert("ñaaaaaa");}
-
 function onPlayButtonPressed() {
-    // Add the instruction required to start the 'play' state
-
-    //game.state.add('about', initState);
     game.state.add('config', playState);
     game.state.add('play', hofState);
 }
@@ -116,14 +99,9 @@ function onPlayButtonPressed() {
 function awake()
 {
     let initialScreen = document.getElementById("initialScreen");
-    let endScreen = document.getElementById("endScreen");
-    let aboutScreen = document.getElementById("aboutScreen");
-    let instructionScreen = document.getElementById("instructionsScreen");
-    let playerScreen = document.getElementById("playerScreen");
-
-
-    initialScreen.style.display = "block";
     
+    initialScreen.style.display = "block";
+    playScreen.style.display = "none";
 
     let theAbout = document.getElementById("aboutScreen");
     theAbout.style.display = "none";
@@ -133,6 +111,5 @@ function awake()
     
     let thePlayer = document.getElementById("playerScreen");
     thePlayer.style.display = "none"
-
 
 }
