@@ -40,7 +40,7 @@ const DOWNARROW_KEYCODE = 40;
 const max_vida = 100;
 
 
-let currentLevel = 1;
+let currentLevel = 2;
 let juega ;
 
 let virus;
@@ -59,12 +59,19 @@ let global_speed = 2;
 let obs;
 let random;
 
+let letterPressed;
+let letterAssigned;
+
 let obstaclesGroup;
 let virusGroup;
 let pUpsGroup;
 let bgGroup;
 let trapsDancingGroup;
 let trapsGroup;
+
+
+let randomLetterPos, randomLetter;
+
 
 let slabWhereToFix;
 var style;
@@ -160,14 +167,11 @@ function updatePlay()
     powerup();
     manageGravity();
     worldMovement();
-    //makeItDance();
-    //fixLetterToSlab(); <------------------------------------------------------------
+    makeItDance();
+    fixLetterToSlab(); //<------------------------------------------------------------
     deleteStuff();
     updateNumberPlatform(); // <-------------------------------------------------------------
 }
-
-
-
 
 //#region Phisics
 function manageGravity()
@@ -406,12 +410,16 @@ function createHUD() {
 }
 
 
-function fixLetterToSlab()
+function fixLetterToSlab(_letter)
 {
     if(ava)
     {
-        if(fbtn.isDown) game.add.tween(slabWhereToFix).to( { alpha: 0 }, 2000, Phaser.Easing.Linear.None, true, 0, 1000, true);
-
+        console.log(letterPressed + "   " + letter.text)
+        if(letterPressed == letter.text) 
+        {
+            game.add.tween(slabWhereToFix).to( { alpha: 0 }, 2000, Phaser.Easing.Linear.None, true, 0, 1000, true);
+            letterPressed = null;
+        }
 
         if(currentLevel = 2)
         {
@@ -466,10 +474,11 @@ function updateHealthBar(damage) {
 
 function createKeyControls()
 {
+    game.input.keyboard.onPressCallback = function(e) { letterPressed = e;   }
+
     rightBTN = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
     leftBTN = game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
     qBTN = game.input.keyboard.addKey(Phaser.Keyboard.Q);
-    fbtn = game.input.keyboard.addKey(Phaser.Keyboard.L);
 }
 
 function createLevelOne()
@@ -579,10 +588,18 @@ function createTrap(x,y)
 
 function createObtacleGroupWithLetter(distance, text)
 {
-    for(let x = -150, i = 0; i < NUM_SLABS - 1; i++, x = x + obstacle.width) createObstacle(x, distance, false);
-    slabWhereToFix = obstacle;
-    console.log( "lemos creado ->");
+    let rnd;
+    rnd = game.rnd.integerInRange(1,NUM_SLABS-1);
+
+
+    for(let x = -150, i = 0; i < NUM_SLABS + 1; i++, x = x + obstacle.width) 
+    {
+        createObstacle(x, distance, false);
+        if(i == rnd)    slabWhereToFix = obstacle;
+    }
+
     ava = true;
+    
 }
 
 function generateBg()
@@ -600,8 +617,6 @@ function generateBg()
 
 //#endregion
 
-
-
 function resetAll(){
     for (let i=0; i < obstaclesGroup.children.length; i++) obstaclesGroup.children[i].destroy();
     for (let i=0; i < trapsGroup.children.length; i++) trapsGroup.children[i].destroy();
@@ -611,9 +626,6 @@ function resetAll(){
     //healthBar.scale.x = maxLife;
     havePower = false;
 }
-
-
-
 
 function virusDance(virus) 
 {
@@ -779,13 +791,14 @@ function levelGenerator(numSlabs )
     let trap;
     let pup;
     let virus,viruspos, virusDancing;
-    let randomLetter;
+    
+    randomLetter =   String.fromCharCode(game.rnd.integerInRange(97,122));
+
     if(currentLevel == 1) virusDancing = false;
     else virusDancing = true;
 
     let y = game.height / 2;
-    if(currentLevel == 2 ) randomLetter = game.rnd.integerInRange(1, 20 - 1);
-    console.log( "letter on level: " + randomLetter);
+    if(currentLevel == 2 ) randomLetterPos = 1;//game.rnd.integerInRange(1, 20 - 1);
 
     for(let j  = 0 ; j < 20; j++ )
     {
@@ -795,16 +808,15 @@ function levelGenerator(numSlabs )
         gap = game.rnd.integerInRange(1, numSlabs - 1);
         trap = game.rnd.integerInRange(1, numSlabs - 1);
 
-
-
         if(trap == gap && trap != 5) trap = 5;
         else if (trap == gap && trap != 4 )trap = 4;
 
-        if(j != randomLetter)
+        if(j != randomLetterPos)
         {
             for(let x = -150, i = 0; i < NUM_SLABS; i++, x = x + obstacle.width) 
             {
-                if(virus == 1){
+                if(virus == 1)
+                {
                     createVirus (viruspos, y , virusDancing);
                     virus = 0;
                 }
@@ -812,18 +824,20 @@ function levelGenerator(numSlabs )
                 if(i != gap && i != trap)    createObstacle(x,y);
                 if(pup == 1 && i == gap) createPowerUp(x,y);
             }
-
         }
         else
         {
-           createObtacleGroupWithLetter(y, 'L', 5*obstacle.width);
-           randomLetter = null;
+           createObtacleGroupWithLetter(y, randomLetter, 5*obstacle.width);
+           letterAssigned = randomLetter; 
+           letter.setText(randomLetter);   
+           randomLetterPos = null;
         }
         y = y + 300
     }
 
 
-    for(let x = -150, i = 0; i < numSlabs; i++, x = x + obstacle.width) {
+    for(let x = -150, i = 0; i < numSlabs; i++, x = x + obstacle.width) 
+    {
         createObstacle(x, y, false);
         obstacle.key = 'finalPlatform';
     }
