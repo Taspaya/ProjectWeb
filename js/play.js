@@ -1,6 +1,7 @@
 
 //#region CONSTANTS  
 //GAME AREA
+
 const GAME_AREA_WIDTH = 400;
 const GAME_AREA_HEIGHT = 800;
 const SQUARE_SIZE = 40;
@@ -260,31 +261,31 @@ function collapseShield(ball, shield )
         for(let i = 0; i < obstaclesGroup.children.length; i++)
         {
             game.physics.arcade.enable(obstaclesGroup.children[i]);
-            obstaclesGroup.children[i].body.velocity.y = obstaclesGroup.children[i].body.velocity.y -  10;
+            obstaclesGroup.children[i].body.velocity.y = (THRESHOLD + THRESHOLD/2);
         }
 
         for(let i = 0; i < virusGroup.children.length; i++)
         {
             game.physics.arcade.enable(virusGroup.children[i]);
-            virusGroup.children[i].body.velocity.y = virusGroup.children[i].body.velocity.y - 10;
+            virusGroup.children[i].body.velocity.y = (THRESHOLD + THRESHOLD/2);
         }
 
         for(let i = 0; i < pUpsGroup.children.length; i++)
         {
             game.physics.arcade.enable(pUpsGroup.children[i]);
-            pUpsGroup.children[i].body.velocity.y = pUpsGroup.children[i].body.velocity.y - 10;
+            pUpsGroup.children[i].body.velocity.y = (THRESHOLD + THRESHOLD/2);
         }
 
         for(let i = 0; i < trapsGroup.children.length; i++)
         {
             game.physics.arcade.enable(trapsGroup.children[i]);
-            trapsGroup.children[i].body.velocity.y = trapsGroup.children[i].body.velocity.y - 10;
+            trapsGroup.children[i].body.velocity.y = (THRESHOLD + THRESHOLD/2);
         }
     
         for(let i = 0; i < shieldGroup.children.length; i++)
         {
             game.physics.arcade.enable(shieldGroup.children[i]);
-            shieldGroup.children[i].body.velocity.y = shieldGroup.children[i].body.velocity.y - 10;
+            shieldGroup.children[i].body.velocity.y = (THRESHOLD + THRESHOLD/2);
         }
     }
 }
@@ -323,9 +324,16 @@ function getPowerUp(ball, _pup)
     }
 }
 
+
 function rebound(ball, _obstacle)
-{
-   
+{ 
+    if(_obstacle.key == 'finalPlatform' && currentLevel == 1) gotoLvl2();
+
+    if((_obstacle.key == "slab" || _obstacle.key == "slab_end") && havePower )
+    {
+       if(_obstacle.key = "slab") _obstacle.destroy();
+       havePower = false;
+    }
     if(_obstacle.key == "slab" || _obstacle.key == "slab_end" ) //<--------------------------------
     {
         havePower = false;
@@ -369,12 +377,6 @@ function rebound(ball, _obstacle)
             shieldGroup.children[i].body.velocity.y = OBSTACLE_SPEED; 
         }
     }  
-    
-    if((_obstacle.key == "slab" || _obstacle.key == "slab_end") && havePower )
-    {
-       if(_obstacle.key = "slab") _obstacle.destroy();
-       havePower = false;
-    }
 }
 
 
@@ -389,8 +391,6 @@ function collisions()
 }
 
 //#endregion
-
-
 
 //#region HUD
 
@@ -415,16 +415,11 @@ function fixLetterToSlab(_letter)
     if(ava)
     {
         console.log(letterPressed + "   " + letter.text)
-        if(letterPressed == letter.text) 
+        if(letterPressed != undefined)
+        if(letterPressed.toLowerCase() == letter.text) 
         {
             game.add.tween(slabWhereToFix).to( { alpha: 0 }, 2000, Phaser.Easing.Linear.None, true, 0, 1000, true);
             letterPressed = null;
-        }
-
-        if(currentLevel = 2)
-        {
-
-
         }
         letter.x = Math.floor(slabWhereToFix.x + slabWhereToFix.width / 2);
         letter.y = Math.floor(slabWhereToFix.y + slabWhereToFix.height / 2);
@@ -441,7 +436,7 @@ function fixLetterToSlab(_letter)
             slabWhereToFix.destroy();
         }
     }
-} //<---------------------------------------------------------------
+} 
 
 
 function updateHealthBar(damage) {
@@ -467,8 +462,6 @@ function updateHealthBar(damage) {
 
 
 //#endregion
-
-
 
 //#region CREATE
 
@@ -617,6 +610,7 @@ function generateBg()
 
 //#endregion
 
+
 function resetAll(){
     for (let i=0; i < obstaclesGroup.children.length; i++) obstaclesGroup.children[i].destroy();
     for (let i=0; i < trapsGroup.children.length; i++) trapsGroup.children[i].destroy();
@@ -659,7 +653,6 @@ function powerup(){
     else icon.visible = false;
   
 }
-
 
 function startEndState(){
     game.state.start('end');
@@ -791,6 +784,7 @@ function levelGenerator(numSlabs )
     let trap;
     let pup;
     let virus,viruspos, virusDancing;
+    let _shield;
     
     randomLetter =   String.fromCharCode(game.rnd.integerInRange(97,122));
 
@@ -799,6 +793,8 @@ function levelGenerator(numSlabs )
 
     let y = game.height / 2;
     if(currentLevel == 2 ) randomLetterPos = 1;//game.rnd.integerInRange(1, 20 - 1);
+    if(currentLevel == 2) _shield = game.rnd.integerInRange(1, numSlabs - 1);
+
 
     for(let j  = 0 ; j < 20; j++ )
     {
@@ -807,6 +803,7 @@ function levelGenerator(numSlabs )
         pup = game.rnd.integerInRange(0, 1);
         gap = game.rnd.integerInRange(1, numSlabs - 1);
         trap = game.rnd.integerInRange(1, numSlabs - 1);
+
 
         if(trap == gap && trap != 5) trap = 5;
         else if (trap == gap && trap != 4 )trap = 4;
@@ -822,7 +819,11 @@ function levelGenerator(numSlabs )
                 }
                 if(i == trap)   createTrap(x,y);
                 if(i != gap && i != trap)    createObstacle(x,y);
-                if(pup == 1 && i == gap) createPowerUp(x,y);
+                if(pup == 1 && i == gap) 
+                {
+                    if(currentLevel == 1)createPowerUp(x,y);
+                    else createshield(x,y);
+                }
             }
         }
         else
@@ -864,7 +865,13 @@ function deleteStuff()
 }
 
 
+function gotoLvl2()
+{
 
+currentLevel = 2;
+game.destroy();
+startGame();
+}
 
 /*function goToWelcome() {
     game.world.setBounds(0, 0, game.width, game.height);

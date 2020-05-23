@@ -19,9 +19,9 @@ function preloadImages()
     game.load.image('healthholder', 'assets/imgs/health_holder.png');
     game.load.image('healthbar', 'assets/imgs/health_bar.png');
     game.load.image('powerUp', 'assets/imgs/powerup.png');
-    game.load.image('powerUp', 'assets/imgs/powerup.png');
     game.load.image('replay', 'assets/imgs/replayButton.png');
     game.load.image('star','assets/imgs/stars.png');
+    game.load.image('shield','assets/imgs/shield.png');
 
 
     game.load.audio('death', 'assets/snds/death.wav');
