@@ -17,8 +17,6 @@ function startGame()
     game.state.add('end', endState);
     game.state.start('configure');
     
-
-
 }
 
 function startInLv2(){
