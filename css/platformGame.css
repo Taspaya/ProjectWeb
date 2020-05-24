@@ -51,6 +51,15 @@ canvas {
     opacity: 0.6;
     font-family: 'Crete Round', serif;
 }
+.stroke {
+
+    text-align:center;
+    color:black;
+    font-family: impact;
+    font-size: 40px;
+    letter-spacing: 0;
+    text-shadow: -3px -3px 3px white, 3px -3px 3px white, -3px 3px 3px white, 3px 3px 3px white;
+    }
 
 #initialScreen {
     margin-top: 3em;

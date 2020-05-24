@@ -18,5 +18,10 @@ function startGame()
     game.state.start('configure');
     
 
-    // Add the instruction required to start the 'welcome' state
+
+}
+
+function startInLv2(){
+    currentLevel = 2;
+    startGame();
 }

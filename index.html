@@ -37,26 +37,36 @@
     </div>
 
     <div id="aboutScreen">
-        <p style="font-size: 35pt;">Falling pilotes</p>
-        <div><p style=" font-size: 15pt;">Que en són de bones!</p></div>
-        <div><p style=" font-size: 6pt;">M'encanten</p></div>
-        <div><p style="font-size: 10pt; color: gray;">Alba Ramos, Gerard Ardit</p></div>
+        <p style="font-size: 60pt; font-family: Amatic SC">Falling pilotes</p>
+        <div><p style=" font-size: 35pt;">This cute ball falls and rebounds!<br/> Help her to reach the end of the levels without dying!</p></div>
+        <div><p class = "stroke" style="font-size: 15pt; ">Alba Ramos, Gerard Ardit</p></div>
 
         <div><button class="button" onclick="awake()">Back</button></div>
     </div>
 
     <div id="instructionsScreen">
-        <div><p style=" font-size: 15pt;">instructions to play the game</p></div>
+        <p style="font-size: 60pt; font-family: Amatic SC">Falling pilotes</p>
+        <div><p class = "stroke" style=" font-size: 25pt;">Move the pltforms with the <b>keyboard arrows</b>. 
+            <br/> Avoid the <b>virus</b> and the <b>traps</b>!
+            <br/> Get all the <b>power ups</b>!
+            
+            <br/>
+            <br/>Press <b>Q</b> to move the platforms with your mouse. 
+            <br/>(And press it again to disable this)
+        
+        
+        
+        </p></div>
         <div><button class="button" onclick="awake()">Back</button></div>
     </div> 
 
     <div id="playerScreen">
-        <div><p style=" font-size: 15pt;">Choose your favorite name!</p></div>
-        <div><p style=" font-size: 14pt;">(Or write your own nick~)</p></div>
-        <div><button class="button" onclick="elegirNombre(1, 'Robot')">Pirata</button></div>
-        <div><button class="button" onclick="elegirNombre(1, 'Araña Peluda')">Araña</button></div>
-        <div><button class="button" onclick="elegirNombre(1, 'Mortadela')">Mortadela</button></div>
-        <div><button class="button" onclick="elegirNombre(0, ' ')">Elige tu propio nombre</button></div>
+        <div><p class = "stroke" style=" font-size: 30pt;">Choose your favorite name!</p></div>
+        <div><p class = "stroke" style=" font-size: 20pt;">~Or write your own nick~</p></div>
+        <div><button class="button" onclick="elegirNombre(1, 'Duck Pirate')">Pirate</button></div>
+        <div><button class="button" onclick="elegirNombre(1, 'Queen Spider')">Spider</button></div>
+        <div><button class="button" onclick="elegirNombre(1, 'Bananaman')">Banana</button></div>
+        <div><button class="button" onclick="elegirNombre(0, ' ')">Write your own nick</button></div>
         <input id="button" type="button" value=" Back " onclick="awake()"/>
     </div>
 
@@ -64,10 +74,7 @@
     <div id="playScreen">
         <div><p style=" font-size: 40pt;">Choose your level!</p></div>
         <input class = "button" value=" Level 1 " onclick="startGame()"/> 
-        <input class = "button" value=" Level 2 " onclick="startGame()"/> 
-<!--    <input id="button" type="button" value=" Level 1 " onclick="startGame()"/> 
-        <input id="button2" type="button" value=" Level 2 " onclick="startGame()"/>    -->
-        
+        <input class = "button" value=" Level 2 " onclick="startInLv2()"/>        
     </div>
 
     <div id="platformGameStage"></div>

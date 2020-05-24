@@ -25,7 +25,7 @@ function createEnd(){
     var style = { font: "50px Arial", fill: "#FFFFFF", align: "center" };
     var t = game.add.text(game.world.centerX-120, 150, text, style);
 
-    var text2 = "Platforms traversed: " + plataformasFinal;
+    var text2 = "Platforms traversed: " + finalPlatforms;
     var style2 = { font: "30px Arial", fill: "#00FCE5", align: "center" };
     var t = game.add.text(game.world.centerX-140, 350, text2, style2);
 
@@ -47,6 +47,7 @@ function createEnd(){
 
     document.body.onkeyup = function(e){
         if(e.keyCode == 83){
+            currentLevel = 1;
             gameOverMusic.stop();
             game.destroy();
             startGame();

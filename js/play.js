@@ -41,8 +41,8 @@ const DOWNARROW_KEYCODE = 40;
 const max_vida = 100;
 
 
-let currentLevel = 2;
-let juega ;
+let currentLevel = 1;
+let isPlaying ;
 
 let virus;
 
@@ -84,8 +84,8 @@ let havePower = false;
 let gap;
 let gaps = [-2 , 1 , 3 , 0 , 0 , 0 , 1 , 2 , 1, 0, 1, 2, 3, 1, 0, -1, 2, 2, 1, 0];
 
-let totalPlataformas;
-let plataformasFinal = 0;
+let totalPlatforms;
+let finalPlatforms = 0;
 
 let haveShield = false;
 
@@ -101,13 +101,12 @@ let continueGame = true;
 let Currentlifes = 3;   
 let counter = 0;
 
-
-
 let music;
 var soundPower= true;
 
 let wol = 'win';
 
+let icon = 0;
 
 let playState = {
     create: createPlay,
@@ -129,7 +128,7 @@ function createPlay()
     qBool = false;
     game.input.enabled = true;
     havePower = false;
-    totalPlataformas = 20;
+    totalPlatforms = 20;
 
     shieldGroup = game.add.group();
     bgGroup = game.add.group();
@@ -147,7 +146,7 @@ function createPlay()
     virusGroup.enableBody = true;
     pUpsGroup.enableBody = true;
 
-    juega = true;
+    isPlaying = true;
     music = game.add.audio('music');
     music.loopFull();
     
@@ -169,9 +168,9 @@ function updatePlay()
     manageGravity();
     worldMovement();
     makeItDance();
-    fixLetterToSlab(); //<------------------------------------------------------------
+    fixLetterToSlab(); 
     deleteStuff();
-    updateNumberPlatform(); // <-------------------------------------------------------------
+    updateNumberPlatform(); 
 }
 
 //#region Phisics
@@ -231,8 +230,8 @@ function collapseTrap(ball, _trap)
         _trap.destroy();
         haveShield = false;
     }
-    totalPlataformas--;
-    hudPlatforms.setText(totalPlataformas);
+    totalPlatforms--;
+    hudPlatforms.setText(totalPlatforms);
 
 }
 
@@ -255,6 +254,7 @@ function collapseShield(ball, shield )
 {
     if(shield.key = "shield" && haveShield == false)
     {
+        havePower = true;
         haveShield = true;
         shield.destroy();
 
@@ -327,16 +327,12 @@ function getPowerUp(ball, _pup)
 
 function rebound(ball, _obstacle)
 { 
-    if(_obstacle.key == 'finalPlatform' && currentLevel == 1) gotoLvl2();
+    if (_obstacle.key == 'finalPlatform' && currentLevel == 1) goToLv2();
+    else if (_obstacle.key == 'finalPlatform' && currentLevel == 2) game.time.events.add(500, startEndState, this);
 
-    if((_obstacle.key == "slab" || _obstacle.key == "slab_end") && havePower )
+    if(_obstacle.key == "slab" || _obstacle.key == "slab_end" ) 
     {
-       if(_obstacle.key = "slab") _obstacle.destroy();
-       havePower = false;
-    }
-    if(_obstacle.key == "slab" || _obstacle.key == "slab_end" ) //<--------------------------------
-    {
-        havePower = false;
+        if (currentLevel == 1) havePower = false;
         soundPower=true;
         if(_obstacle.body.velocity.y < THRESHOLD && _obstacle.key == "slab" ) {
             let breakObastacle = game.add.audio('break');
@@ -377,6 +373,12 @@ function rebound(ball, _obstacle)
             shieldGroup.children[i].body.velocity.y = OBSTACLE_SPEED; 
         }
     }  
+
+    if((_obstacle.key == "slab" || _obstacle.key == "slab_end") && havePower )
+    {
+       if(_obstacle.key = "slab") _obstacle.destroy();
+       havePower = false;
+    }
 }
 
 
@@ -400,13 +402,14 @@ function createHUD() {
     hudGroup.create(50, 15, 'healthholder');
     healthBar = hudGroup.create(50,15,'healthbar');
     hudNamePlayer=game.add.text(5,45,nombreJugador,{fill: '#FFFFFF', fontSize: 20});
-    hudPlatforms=game.add.text(345,760,totalPlataformas,{fill: '#FFFFFF', fontSize: 20});
+    hudPlatforms=game.add.text(345,760,totalPlatforms,{fill: '#FFFFFF', fontSize: 20});
     hudlevel=game.add.text(300,760, currentLevel,{fill: '#FFFFFF', fontSize: 20});
     hudGroup.create(320, 700, 'powerUp');
     hudGroup.add(hudNamePlayer);
 
     hudGroup.fixedToCamera = true;
     healthValue = max_vida;
+    icon = hudGroup.children[3];
 }
 
 
@@ -414,7 +417,6 @@ function fixLetterToSlab(_letter)
 {
     if(ava)
     {
-        console.log(letterPressed + "   " + letter.text)
         if(letterPressed != undefined)
         if(letterPressed.toLowerCase() == letter.text) 
         {
@@ -446,11 +448,11 @@ function updateHealthBar(damage) {
     if (healthBar.scale.x > maxLife) healthBar.scale.x = maxLife;
     if (healthBar.scale.x <= 0){
         healthBar.scale.x = 0;
-        juega = false;
+        isPlaying = false;
         ball.animations.stop(null, true);
-        ball.animations.add('muerte', [0,1,2,3,4], 10, false);
+        ball.animations.add('death', [0,1,2,3,4], 10, false);
         ball.loadTexture('playerDeath', true);
-        ball.animations.play('muerte');
+        ball.animations.play('death');
 
         let die = game.add.audio('death');
         die.play();
@@ -498,7 +500,7 @@ function createBall()
     ball.width = 30;
     ball.height = 30;
     game.physics.arcade.enable(ball);
-    ball.animations.add('pelota', [0,1,2,3,4,5,6,7], 14, true);
+    ball.animations.add('ballAnimation', [0,1,2,3,4,5,6,7], 14, true);
 
 }
 
@@ -616,8 +618,7 @@ function resetAll(){
     for (let i=0; i < trapsGroup.children.length; i++) trapsGroup.children[i].destroy();
     for (let i=0; i < virusGroup.children.length; i++) virusGroup.children[i].destroy();
     for (let i=0; i < pUpsGroup.children.length; i++) pUpsGroup.children[i].destroy();
-    totalPlataformas = 20;
-    //healthBar.scale.x = maxLife;
+    totalPlatforms = 20;
     havePower = false;
 }
 
@@ -639,9 +640,6 @@ function makeItDance()
 }
 
 function powerup(){
-    var icon = hudGroup.children[3];
-
-
     if (havePower){
         icon.visible = true;
         if(soundPower){
@@ -660,7 +658,7 @@ function startEndState(){
 
 function worldMovement()
 {
-    if (juega) ball.animations.play('pelota');
+    if (isPlaying) ball.animations.play('ballAnimation');
 
     if (leftBTN.isDown || game.input.mousePointer.x > game.width/2 && qBool) 
     {
@@ -865,33 +863,28 @@ function deleteStuff()
 }
 
 
-function gotoLvl2()
+function goToLv2()
 {
-
-currentLevel = 2;
-game.destroy();
-startGame();
+    currentLevel = 2;
+    game.destroy();
+    startGame();
 }
 
-/*function goToWelcome() {
-    game.world.setBounds(0, 0, game.width, game.height);
-    game.state.start('welcome');
-}*/
+
 
 function updateNumberPlatform(){
 
-    if (totalPlataformas > 0){
+    if (totalPlatforms > 0 && trapsGroup.children[0]){
         if (trapsGroup.children[0].body.y < ball.body.y){
-            totalPlataformas--;
+            totalPlatforms--;
             trapsGroup.children[0].destroy();
-            hudPlatforms.setText(totalPlataformas);
+            hudPlatforms.setText(totalPlatforms);
         }
     }
 
-    plataformasFinal = 20 - totalPlataformas;
+    if (currentLevel == 1)  finalPlatforms = 20 - totalPlatforms;
+    if (currentLevel == 2) finalPlatforms = 40 - totalPlatforms;
 
-    //console.log(trapsGroup.children[0].body.y);
-    //console.log(ball.body.y);
 
 }
 
