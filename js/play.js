@@ -123,7 +123,6 @@ function createPlay()
     virusGroup.enableBody = true;
     pUpsGroup.enableBody = true;
 
-    isPlaying = true;
 
     music = game.add.audio('music');
     music.loopFull();
@@ -135,6 +134,9 @@ function createPlay()
     createHUD();
     generateBg();
     levelGenerator(NUM_SLABS); 
+
+    isPlaying = true;
+
 }
 
 // Game Update
@@ -228,8 +230,7 @@ function collapseVirus(ball, _virus)
         updateHealthBar(obstaclesGroup.children[0].body.velocity.y);
         let damage = game.add.audio('damage');
         damage.play();
-        _virus.destroy();
-        
+        _virus.destroy();     
     }
  
 }
@@ -374,7 +375,6 @@ function collisions()
     game.physics.arcade.overlap(pUpsGroup, ball, getPowerUp, null, this);
     game.physics.arcade.overlap(trapsGroup, ball, collapseTrap, null, this);
     game.physics.arcade.overlap(shieldGroup, ball, collapseShield, null, this);
-
 }
 
 //Manages when the player can move and how it does
@@ -382,45 +382,51 @@ function worldMovement()
 {
     if (isPlaying) ball.animations.play('ballAnimation');
 
-    if(obstaclesGroup.children[0].body.x > ball.body.x) MoveRight();
-    if(obstaclesGroup.children[obstaclesGroup.children.length-1].x + obstacle.width < ball.body.x + ball.width) MoveLeft();
+    if(obstaclesGroup.children[0] != null)
+    if(obstaclesGroup.children[0].body.x > ball.body.x && isPlaying) MoveRight();
 
-    if(obstaclesGroup.children[0].body.x < ball.body.x && obstaclesGroup.children[obstaclesGroup.children.length-1].x + obstacle.width  > ball.body.x + ball.width)
+    if(obstaclesGroup.children[0] != null)
+    if(obstaclesGroup.children[obstaclesGroup.children.length-1].x + obstacle.width < ball.body.x + ball.width && isPlaying) MoveLeft();
+
+    if(obstaclesGroup.children[0] != null)
     {
-        if (leftBTN.isDown || game.input.mousePointer.x > game.width/2 && qBool) 
+        if(obstaclesGroup.children[0].body.x < ball.body.x && obstaclesGroup.children[obstaclesGroup.children.length-1].x + obstacle.width  > ball.body.x + ball.width)
         {
-            MoveLeft();
-        }
-        else if (rightBTN.isDown || game.input.mousePointer.x < game.width/2 && qBool) 
-        {
-            MoveRight();
-        }
-        else 
-        {
-            for(let i = 0; i < obstaclesGroup.children.length; i++)
+            if (leftBTN.isDown || game.input.mousePointer.x > game.width/2 && qBool) 
             {
-                game.physics.arcade.enable(obstaclesGroup.children[i]);
-                obstaclesGroup.children[i].body.velocity.x = 0;
+                MoveLeft();
             }
-            for(let i = 0; i < virusGroup.children.length; i++)
+            else if (rightBTN.isDown || game.input.mousePointer.x < game.width/2 && qBool) 
             {
-                game.physics.arcade.enable(virusGroup.children[i]);
-                virusGroup.children[i].body.velocity.x = 0;
+                MoveRight();
             }
-            for(let i = 0; i < pUpsGroup.children.length; i++)
+            else 
             {
-                game.physics.arcade.enable(pUpsGroup.children[i]);
-                pUpsGroup.children[i].body.velocity.x = 0;
-            }
-            for(let i = 0; i < trapsGroup.children.length; i++)
-            {
-                game.physics.arcade.enable(trapsGroup.children[i]);
-                trapsGroup.children[i].body.velocity.x = 0;
-            }
-            for(let i = 0; i < shieldGroup.children.length; i++)
-            {
-                game.physics.arcade.enable(shieldGroup.children[i]);
-                shieldGroup.children[i].body.velocity.x =  0;
+                for(let i = 0; i < obstaclesGroup.children.length; i++)
+                {
+                    game.physics.arcade.enable(obstaclesGroup.children[i]);
+                    obstaclesGroup.children[i].body.velocity.x = 0;
+                }
+                for(let i = 0; i < virusGroup.children.length; i++)
+                {
+                    game.physics.arcade.enable(virusGroup.children[i]);
+                    virusGroup.children[i].body.velocity.x = 0;
+                }
+                for(let i = 0; i < pUpsGroup.children.length; i++)
+                {
+                    game.physics.arcade.enable(pUpsGroup.children[i]);
+                    pUpsGroup.children[i].body.velocity.x = 0;
+                }
+                for(let i = 0; i < trapsGroup.children.length; i++)
+                {
+                    game.physics.arcade.enable(trapsGroup.children[i]);
+                    trapsGroup.children[i].body.velocity.x = 0;
+                }
+                for(let i = 0; i < shieldGroup.children.length; i++)
+                {
+                    game.physics.arcade.enable(shieldGroup.children[i]);
+                    shieldGroup.children[i].body.velocity.x =  0;
+                }
             }
         }
     }
@@ -538,6 +544,7 @@ function fixLetterToSlab(_letter)
         letter.y = Math.floor(-20);
     }
     if (currentLevel == 2){
+        if(slabWhereToFix != null)
         if(slabWhereToFix.alpha < 0.5)
         {
             ava = false;
@@ -601,7 +608,6 @@ function updateNumberPlatform(){
 //#endregion
 
 //#region CREATE
-
 
 //Initialisation of the keys used to play the game
 function createKeyControls()
@@ -865,6 +871,7 @@ function deleteStuff()
 //Starts the lvl 2
 function goToLv2()
 {
+    isPlaying = false;
     currentLevel = 2;
     game.destroy();
     startGame();
