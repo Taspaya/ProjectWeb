@@ -19,7 +19,8 @@ function startGame()
     
 }
 
-function startInLv2(){
+function startInLv2()
+{
     currentLevel = 2;
     startGame();
 }
